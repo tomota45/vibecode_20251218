@@ -6,14 +6,22 @@
   <title>みんなの回答（1台疑似）</title>
   <style>
     :root{
-      --bg1:#fff3b0; --bg2:#b9fbc0; --bg3:#a0c4ff;
-      --panel: rgba(255,255,255,.85);
-      --text:#10203a; --muted:#4b5a73;
-      --a:#2b6cff; --b:#ff3b7a;
+      /* 明るい子供向け配色 */
+      --bg1:#fff3b0;
+      --bg2:#b9fbc0;
+      --bg3:#a0c4ff;
+      --panel: rgba(255,255,255,.86);
+      --text:#10203a;
+      --muted:#4b5a73;
+
+      --a:#2b6cff;
+      --b:#ff3b7a;
+
       --shadow: 0 10px 30px rgba(16,32,58,.16);
       --shadow2: 0 16px 40px rgba(16,32,58,.18);
       --r:22px;
     }
+
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -27,9 +35,16 @@
         radial-gradient(900px 700px at 50% 110%, var(--bg1) 0%, rgba(255,243,176,0) 60%),
         linear-gradient(180deg, #fff 0%, #f7fbff 100%);
     }
+
     .wrap{ max-width: 860px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
-    header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
-    .title{ font-size:22px; font-weight:1000; margin:0; letter-spacing:.2px; }
+
+    header{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    }
+    .title{
+      font-size:22px; font-weight:1000; margin:0;
+      letter-spacing:.2px;
+    }
     .pill{
       background: rgba(255,255,255,.75);
       border: 2px solid rgba(16,32,58,.10);
@@ -38,6 +53,7 @@
       box-shadow: var(--shadow);
       align-self:flex-start;
     }
+
     .card{
       background: var(--panel);
       border: 2px solid rgba(16,32,58,.10);
@@ -47,8 +63,15 @@
       backdrop-filter: blur(8px);
     }
     .card-inner{ padding:14px; }
+
     .qrow{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
-    .qtext{ font-size:19px; font-weight:1000; margin:0; white-space:pre-line; line-height:1.25; }
+    .qtext{
+      font-size:19px;
+      font-weight:1000;
+      margin:0;
+      white-space:pre-line;
+      line-height:1.25;
+    }
     .actions{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
 
     button{
@@ -72,29 +95,40 @@
       border-color: rgba(16,32,58,.08);
       box-shadow: 0 14px 26px rgba(43,108,255,.25);
     }
-    button.ghost{ background: rgba(255,255,255,.60); }
+    button.ghost{
+      background: rgba(255,255,255,.60);
+    }
+    button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      filter: grayscale(.2);
+    }
 
     .grid{ display:grid; grid-template-columns: 1fr; gap:12px; }
     @media (min-width: 640px){ .grid{ grid-template-columns: 1fr 1fr; } }
 
+    /* ✅ ひとつ前の「でかくて押しやすい」カード型A/B */
     .choiceBtn{
       width:100%;
       text-align:left;
       border-radius: var(--r);
-      border: 2px solid rgba(16,32,58,.10);
-      background: rgba(255,255,255,.78);
+      border: 3px solid rgba(16,32,58,.10);
+      background: rgba(255,255,255,.90);
       padding:0;
       overflow:hidden;
-      min-height: 190px;
-      box-shadow: var(--shadow);
+      min-height: 210px;
+      box-shadow: 0 16px 32px rgba(16,32,58,.14);
     }
     .choiceBtn:active{ transform: translateY(1px); }
     .choiceBtn:focus-visible{ outline: 4px solid rgba(43,108,255,.35); outline-offset: 3px; }
 
-    .head{ display:flex; align-items:center; justify-content:space-between; padding: 12px 12px 8px; gap:10px; }
+    .head{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 12px 12px 8px; gap:10px;
+    }
     .badge{
       display:inline-flex; align-items:center; gap:8px;
-      font-weight:1100; font-size:14px;
+      font-weight:1200; font-size:14px;
       padding: 6px 10px;
       border-radius: 999px;
       background: rgba(16,32,58,.06);
@@ -103,7 +137,15 @@
     .dot{ width:10px; height:10px; border-radius:50%; background: rgba(16,32,58,.35); box-shadow: 0 0 0 6px rgba(16,32,58,.06); }
     .badge.a .dot{ background: var(--a); box-shadow: 0 0 0 6px rgba(43,108,255,.16); }
     .badge.b .dot{ background: var(--b); box-shadow: 0 0 0 6px rgba(255,59,122,.16); }
-    .label{ font-size:17px; font-weight:1100; padding-right: 10px; }
+    .label{
+      font-size:18px;
+      font-weight:1200;
+      padding-right: 10px;
+      text-align:right;
+      line-height:1.15;
+      max-width: 70%;
+      word-break: break-word;
+    }
 
     .arena{
       display:flex; gap:10px;
@@ -148,14 +190,19 @@
       padding: 12px;
       border-radius: var(--r);
       border: 2px solid rgba(16,32,58,.10);
-      background: rgba(255,255,255,.80);
+      background: rgba(255,255,255,.88);
       box-shadow: var(--shadow);
     }
     .result.show{ display:block; }
     .result .big{ font-size: 22px; font-weight: 1100; margin:0 0 6px; }
-    .result .row{ display:flex; justify-content:space-between; gap:10px; color:var(--muted); font-weight:1000; }
+    .result .row{ display:flex; justify-content:space-between; gap:10px; color:var(--muted); font-weight:1100; }
 
-    .progressHint{ color: var(--muted); font-size: 12px; font-weight: 1000; padding: 0 0 2px; }
+    .progressHint{
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 1100;
+      padding: 0 0 2px;
+    }
     .progressHint b{ color: var(--text); }
 
     /* ====== 派手オーバーレイ（中央・3秒） ====== */
@@ -170,7 +217,7 @@
 
     .pop{
       position:relative;
-      width: min(640px, calc(100vw - 32px));
+      width: min(680px, calc(100vw - 32px));
       border-radius: 28px;
       padding: 22px 18px 18px;
       text-align:center;
@@ -204,7 +251,7 @@
     }
 
     .popMain{
-      font-size: 34px;
+      font-size: 36px;
       font-weight: 1200;
       letter-spacing:.2px;
       text-shadow: 0 3px 0 rgba(255,255,255,.55);
@@ -216,7 +263,6 @@
       50%{ transform: rotate(1deg); }
     }
 
-    /* どっちが多いか分かる大バッジ */
     .winnerBadge{
       display:inline-flex;
       align-items:center;
@@ -234,7 +280,7 @@
     }
     @keyframes thump{
       0%,100%{ transform: scale(1); }
-      50%{ transform: scale(1.04); }
+      50%{ transform: scale(1.05); }
     }
     .winnerBadge.a{ background: linear-gradient(180deg, var(--a), #4338ca); }
     .winnerBadge.b{ background: linear-gradient(180deg, var(--b), #ff7a00); }
@@ -245,6 +291,7 @@
       font-size: 16px;
       font-weight: 1100;
       color: rgba(11,18,32,.78);
+      white-space:pre-line;
     }
   </style>
 </head>
@@ -265,6 +312,7 @@
           </div>
           <div class="actions">
             <button class="small ghost" id="resetBtn" type="button">リセット</button>
+            <!-- 問題3のみ表示：表示名は答えが分からないようにする -->
             <button class="small" id="speakBtn" type="button" style="display:none;">音声読み上げ</button>
             <button class="small primary" id="nextBtn" type="button" disabled>次へ</button>
           </div>
@@ -307,7 +355,6 @@
       <div class="sparkle"></div>
       <div class="popMain" id="overlayMain">こっちが多い！</div>
 
-      <!-- 勝った側を大きく -->
       <div id="winnerBadge" class="winnerBadge a" style="display:none;">
         <span class="bigLetter" id="winnerLetter">A</span>
         <span id="winnerLabel">（ラベル）</span>
@@ -319,16 +366,22 @@
 
 <script>
 (() => {
+  // ✅ 問題4：会話を問題文内に表示（テキスト表示）
   const questions = [
-    { text: '問題１\n“He is running.”\nどっちの意味？', a: '彼は走っている', b: '彼は走りたい' },
-    { text: '問題２\n…っち？', a: 'ship', b: 'sheep' },
-    { text: '問題３\n今聞こえたのはどっち？', a: 'ship', b: 'sheep', speakWord: 'sheep' },
-    { text: '問題４\nこのあと、なにをすると思う？', a: '学校に行く', b: '家に帰る' },
+    { text: '問題１\\n“He is running.”\\nどっちの意味？', a: '彼は走っている', b: '彼は走りたい' },
+    { text: '問題２\\nどっちが自然かな？', a: 'I like apple.', b: 'I like apples.' },
+    { text: '問題３\\n今聞こえたのはどっち？', a: 'ship', b: 'sheep', speakWord: 'sheep' },
+    { text: `問題４
+Mom: Hurry up!
+It's time for school.
+Boy: OK!
+
+このあと、なにをすると思う？`, a: '学校に行く', b: '家に帰る' },
   ];
 
   const TOTAL_VOTERS = 4;
   let qIndex = 0;
-  let votes = Array(TOTAL_VOTERS + 1).fill(null);
+  let votes = Array(TOTAL_VOTERS + 1).fill(null); // votes[1..4] = 'A'|'B'|null
   let currentVoter = 1;
   let locked = false;
 
@@ -367,7 +420,7 @@
       osc.frequency.setValueAtTime(220, t0);
       osc.frequency.exponentialRampToValueAtTime(110, t0 + 0.14);
       gain.gain.setValueAtTime(0.0001, t0);
-      gain.gain.exponentialRampToValueAtTime(0.8, t0 + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.85, t0 + 0.01);
       gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.22);
       osc.connect(gain).connect(audioCtx.destination);
       osc.start(t0);
@@ -415,7 +468,7 @@
 
     overlay.classList.add("show");
     if(overlayTimer) clearTimeout(overlayTimer);
-    overlayTimer = setTimeout(() => overlay.classList.remove("show"), 3000); // ← 3秒表示
+    overlayTimer = setTimeout(() => overlay.classList.remove("show"), 3000); // 3秒表示
   }
 
   function renderQuestion(){
@@ -425,6 +478,7 @@
     labelA.textContent = q.a;
     labelB.textContent = q.b;
 
+    // 問題3のみ表示：ボタン名は「音声読み上げ」
     speakBtn.style.display = q.speakWord ? "" : "none";
     speakBtn.textContent = "音声読み上げ";
 
@@ -434,9 +488,9 @@
 
     nextBtn.disabled = true;
     resultBox.classList.remove("show");
+    overlay.classList.remove("show");
     arenaA.innerHTML = "";
     arenaB.innerHTML = "";
-    overlay.classList.remove("show");
     updateVoterHint();
   }
 
@@ -475,25 +529,13 @@
 
     if (aCount > bCount){
       resultHeadline.textContent = "結果：A が多い！";
-      showCenterMessage({
-        main: "こっちが多い！",
-        sub: `Aが多数（${aCount}人）`,
-        winner: "A"
-      });
+      showCenterMessage({ main: "こっちが多い！", sub: `Aが多数（${aCount}人）`, winner: "A" });
     } else if (bCount > aCount){
       resultHeadline.textContent = "結果：B が多い！";
-      showCenterMessage({
-        main: "こっちが多い！",
-        sub: `Bが多数（${bCount}人）`,
-        winner: "B"
-      });
+      showCenterMessage({ main: "こっちが多い！", sub: `Bが多数（${bCount}人）`, winner: "B" });
     } else {
       resultHeadline.textContent = "結果：イーブン！";
-      showCenterMessage({
-        main: "イーブン！",
-        sub: "同数でした",
-        winner: null
-      });
+      showCenterMessage({ main: "イーブン！", sub: "同数でした", winner: null });
     }
 
     resultBox.classList.add("show");
@@ -514,7 +556,7 @@
     }
   }
 
-  // ★重要：1回の操作で1回だけ発火させる（clickは使わない）
+  // ✅ 1クリック=1回だけ（pointerup のみ）
   function bindOnePress(el, fn){
     el.addEventListener("pointerup", (e) => {
       e.preventDefault();
@@ -542,7 +584,7 @@
       await audioCtx.resume();
     } catch {}
     const q = questions[qIndex];
-    if(q.speakWord) speakEnglishWord(q.speakWord);
+    if(q.speakWord) speakEnglishWord(q.speakWord); // 中身は sheep
   });
 
   bindOnePress(nextBtn, () => {
