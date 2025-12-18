@@ -25,8 +25,7 @@
     }
     .wrap{ max-width: 820px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
     header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
-    .title{ font-size:20px; font-weight:900; margin:0; }
-    .sub{ margin:6px 0 0; color:var(--muted); font-size:13px; line-height:1.35; }
+    .title{ font-size:20px; font-weight:1000; margin:0; }
     .pill{
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(255,255,255,.10);
@@ -56,7 +55,8 @@
       cursor:pointer;
       transition: transform .06s ease, filter .2s ease;
       -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation; /* スマホで反応しやすく */
+      touch-action: manipulation;
+      user-select:none;
     }
     button:active{ transform: translateY(1px) scale(.99); }
     button.small{ padding:10px 12px; font-size:13px; border-radius:12px; }
@@ -66,7 +66,6 @@
     .grid{ display:grid; grid-template-columns: 1fr; gap:12px; }
     @media (min-width: 640px){ .grid{ grid-template-columns: 1fr 1fr; } }
 
-    /* A/B 選択枠は「ボタン」そのものにする（押せない問題の回避） */
     .choiceBtn{
       width:100%;
       text-align:left;
@@ -164,10 +163,7 @@
 <body>
   <div class="wrap">
     <header>
-      <div>
-        <h1 class="title">みんなの回答</h1>
-        <p class="sub">下の「投票者1〜4」→ A/B をタップ。4票そろうと“ドン！”→%→多い方表示（同数はイーブン）。</p>
-      </div>
+      <h1 class="title">みんなの回答</h1>
       <div class="pill" id="statusPill">問題 1 / 4</div>
     </header>
 
@@ -176,9 +172,10 @@
         <div class="qrow">
           <p class="qtext" id="questionText">問題</p>
           <div class="actions">
-            <button class="small ghost" id="resetBtn">リセット</button>
-            <button class="small" id="speakBtn" style="display:none;">🔊 sheep</button>
-            <button class="small primary" id="nextBtn" disabled>次へ</button>
+            <button class="small ghost" id="resetBtn" type="button">リセット</button>
+            <!-- 問題3だけ表示：押したら "sheep" だけ鳴らす -->
+            <button class="small" id="speakBtn" type="button" style="display:none;">🔊 sheep</button>
+            <button class="small primary" id="nextBtn" type="button" disabled>次へ</button>
           </div>
         </div>
 
@@ -208,13 +205,12 @@
             <span id="resultA">A: 0%</span>
             <span id="resultB">B: 0%</span>
           </div>
-          <p class="hint" style="margin:10px 0 0;">※デモ：SEはビープ音。TTSは英単語のみ。</p>
         </div>
 
         <div class="divider"></div>
 
         <div class="footerbar">
-          <div class="hint">疑似投票：投票者を選んでから A/B を押す（同じ人が押し直すと移動）</div>
+          <div class="hint">投票者を選んでから A/B を押す（同じ人が押し直すと移動）</div>
           <div class="voters" id="voterButtons"></div>
         </div>
       </div>
@@ -228,11 +224,11 @@
 
 <script>
 (() => {
-  // PPT「問題内容」に合わせる :contentReference[oaicite:3]{index=3}
+  // PPTの「問題内容」を反映（問題3は ship/sheep、問題2も ship/sheep）
   const questions = [
     { text: '問題１\n“He is running.”\nどっちの意味？', a: '彼は走っている', b: '彼は走りたい' },
-    { text: '問題２\nどっちが自然かな？', a: 'I like apple.', b: 'I like apples.' },
-    { text: '問題３\n今聞こえたのはどっち？', a: 'ship', b: 'sheep', speakWord: 'sheep' }, // ここだけ音声ボタン
+    { text: '問題２\n…っち？', a: 'ship', b: 'sheep' },
+    { text: '問題３\n今聞こえたのはどっち？', a: 'ship', b: 'sheep', speakWord: 'sheep' },
     { text: '問題４\nこのあと、なにをすると思う？', a: '学校に行く', b: '家に帰る' },
   ];
 
@@ -262,7 +258,6 @@
 
   let audioCtx = null;
 
-  // “ドン！”（仮SE） :contentReference[oaicite:4]{index=4}
   function beepDon() {
     try{
       audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
@@ -283,12 +278,8 @@
     }
   }
 
-  // 英単語だけ（日本語は読み上げない）
   function speakEnglishWord(word){
-    if (!("speechSynthesis" in window)) {
-      alert("この端末はTTSに対応していません。");
-      return;
-    }
+    if (!("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
     const ut = new SpeechSynthesisUtterance(word);
     ut.lang = "en-US";
@@ -350,11 +341,11 @@
       btn.type = "button";
       btn.className = "small " + (v === selectedVoter ? "primary" : "");
       btn.textContent = `投票者${v}`;
-      btn.addEventListener("click", () => {
+      btn.addEventListener("pointerdown", () => {
         if(locked) return;
         selectedVoter = v;
         renderVoterButtons();
-      }, {passive:true});
+      });
       voterButtons.appendChild(btn);
     }
   }
@@ -386,7 +377,6 @@
     resultA.textContent = `A: ${aPct}%（${aCount}人）`;
     resultB.textContent = `B: ${bPct}%（${bCount}人）`;
 
-    // 「こっちが多い！」 / 「イーブン」 :contentReference[oaicite:5]{index=5}
     if (aCount > bCount){
       resultHeadline.textContent = "結果：A が多い！";
       showBanner("こっちが多い！", `A（${questions[qIndex].a}）が多数`);
@@ -409,17 +399,16 @@
     if(allVoted()) setTimeout(tallyAndShow, 250);
   }
 
-  // クリック＋タッチを両方拾う（環境差で「押せない」を減らす）
-  const choiceA = document.getElementById("choiceA");
-  const choiceB = document.getElementById("choiceB");
+  // 反応しない系の吸収：pointerdown を主にして click を保険にする
   const bindPress = (el, fn) => {
-    el.addEventListener("click", (e) => { e.preventDefault(); fn(); });
-    el.addEventListener("touchstart", (e) => { e.preventDefault(); fn(); }, {passive:false});
+    el.addEventListener("pointerdown", (e) => { fn(); }, {passive:true});
+    el.addEventListener("click", (e) => { fn(); });
   };
-  bindPress(choiceA, () => vote("A"));
-  bindPress(choiceB, () => vote("B"));
 
-  resetBtn.addEventListener("click", () => {
+  bindPress(document.getElementById("choiceA"), () => vote("A"));
+  bindPress(document.getElementById("choiceB"), () => vote("B"));
+
+  resetBtn.addEventListener("pointerdown", () => {
     locked = false;
     nextBtn.disabled = true;
     votes = Array(TOTAL_VOTERS + 1).fill(null);
@@ -428,8 +417,7 @@
     hideBanner();
   });
 
-  speakBtn.addEventListener("click", async () => {
-    // iPhoneはユーザー操作後に音が許可されやすい
+  speakBtn.addEventListener("pointerdown", async () => {
     try{
       audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
       await audioCtx.resume();
@@ -438,7 +426,7 @@
     if(q.speakWord) speakEnglishWord(q.speakWord);
   });
 
-  nextBtn.addEventListener("click", () => {
+  nextBtn.addEventListener("pointerdown", () => {
     if(qIndex < questions.length - 1){
       qIndex++;
       renderQuestion();
