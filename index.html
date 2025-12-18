@@ -35,7 +35,7 @@
       border: 2px solid rgba(16,32,58,.10);
       padding: 8px 12px; border-radius:999px;
       font-size:12px; color:var(--muted);
-      box-shadow: var(--shadow);
+      box-shadow: 0 10px 20px rgba(16,32,58,.12);
     }
 
     .card{
@@ -43,6 +43,8 @@
       border: 2px solid rgba(16,32,58,.10);
       border-radius: var(--r);
       box-shadow: var(--shadow2);
+      overflow:hidden;
+      backdrop-filter: blur(8px);
     }
     .card-inner{ padding:14px; }
 
@@ -50,13 +52,9 @@
     .qtext{ font-size:19px; font-weight:1000; margin:0; white-space:pre-line; line-height:1.25; }
 
     .progress{
-      display:flex;
-      gap:12px;
-      align-items:center;
+      display:flex; gap:12px; align-items:center;
       margin-top:6px;
-      font-size:13px;
-      font-weight:1000;
-      color:var(--muted);
+      font-size:13px; font-weight:1100; color:var(--muted);
     }
     .progress b{ color:var(--text); }
 
@@ -72,13 +70,14 @@
       cursor:pointer;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
+      user-select:none;
     }
     button.small{ padding:10px 12px; font-size:13px; border-radius:14px; }
     button.primary{
       color:#fff;
       background: linear-gradient(180deg, rgba(43,108,255,1), rgba(67,56,202,1));
     }
-    button:disabled{ opacity:.55; }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
 
     .grid{ display:grid; grid-template-columns: 1fr; gap:12px; }
     @media (min-width: 640px){ .grid{ grid-template-columns: 1fr 1fr; } }
@@ -88,29 +87,36 @@
       border-radius: var(--r);
       border: 3px solid rgba(16,32,58,.10);
       background: rgba(255,255,255,.90);
-      min-height: 200px;
+      min-height: 210px;
       box-shadow: 0 16px 32px rgba(16,32,58,.14);
     }
-    .head{
-      display:flex; align-items:center; justify-content:space-between;
-      padding: 12px;
-    }
-    .label{ font-size:18px; font-weight:1200; }
+    .choiceBtn:active{ transform: translateY(1px); }
+    .choiceBtn:disabled{ opacity:.75; }
 
-    .arena{ display:flex; gap:10px; padding: 10px 12px 14px; flex-wrap:wrap; min-height: 100px; }
+    .head{ display:flex; align-items:center; justify-content:space-between; padding: 12px; gap:10px; }
+    .label{ font-size:18px; font-weight:1200; text-align:right; max-width:75%; word-break:break-word; }
+
+    .arena{ display:flex; gap:10px; padding: 10px 12px 14px; flex-wrap:wrap; min-height: 110px; }
+
     .person{
       width:52px; height:52px;
       border-radius: 18px;
       display:grid; place-items:center;
-      background:#e6f0ff; font-weight:1100;
+      background:#e6f0ff;
+      border:2px solid rgba(16,32,58,.10);
+      font-weight:1100;
+      position:relative;
+      box-shadow:0 10px 18px rgba(16,32,58,.10);
     }
 
     .divider{ height:1px; background: rgba(16,32,58,.10); margin: 12px 0; }
 
+    /* 中央結果表示（3秒） */
     .overlay{
       position: fixed; inset: 0; display:none;
       align-items:center; justify-content:center;
       background: rgba(0,0,0,.25);
+      z-index: 10;
     }
     .overlay.show{ display:flex; }
     .pop{
@@ -120,6 +126,15 @@
       font-size:30px;
       font-weight:1200;
       box-shadow:0 30px 80px rgba(0,0,0,.35);
+      text-align:center;
+      min-width: min(520px, calc(100vw - 32px));
+    }
+    .popSub{
+      margin-top:10px;
+      font-size:14px;
+      font-weight:1100;
+      opacity:.85;
+      white-space:pre-line;
     }
   </style>
 </head>
@@ -142,22 +157,31 @@
           </div>
         </div>
         <div class="actions">
-          <button class="small" id="nextBtn" disabled>次へ</button>
+          <button class="small primary" id="nextBtn" disabled>次へ</button>
         </div>
       </div>
 
       <div class="divider"></div>
 
       <div class="grid">
-        <button class="choiceBtn" id="choiceA"><div class="head"><div class="label" id="labelA"></div></div><div class="arena" id="arenaA"></div></button>
-        <button class="choiceBtn" id="choiceB"><div class="head"><div class="label" id="labelB"></div></div><div class="arena" id="arenaB"></div></button>
+        <button class="choiceBtn" id="choiceA" type="button">
+          <div class="head"><div class="label" id="labelA"></div></div>
+          <div class="arena" id="arenaA"></div>
+        </button>
+        <button class="choiceBtn" id="choiceB" type="button">
+          <div class="head"><div class="label" id="labelB"></div></div>
+          <div class="arena" id="arenaB"></div>
+        </button>
       </div>
     </div>
   </section>
 </div>
 
-<div class="overlay" id="overlay">
-  <div class="pop" id="overlayText">こっちが多い！</div>
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="pop">
+    <div id="overlayText">こっちが多い！</div>
+    <div class="popSub" id="overlaySub"></div>
+  </div>
 </div>
 
 <script>
@@ -174,7 +198,10 @@ Boy: OK!
 ];
 
 const TOTAL = 4;
-let q = 0, count = 0, votes = [];
+let q = 0;
+let count = 0;
+let votes = [];
+let locked = false; // ★結果確定後はロック（授業で話す時間）
 
 const qText = document.getElementById('questionText');
 const labelA = document.getElementById('labelA');
@@ -183,10 +210,13 @@ const arenaA = document.getElementById('arenaA');
 const arenaB = document.getElementById('arenaB');
 const overlay = document.getElementById('overlay');
 const overlayText = document.getElementById('overlayText');
+const overlaySub = document.getElementById('overlaySub');
 const statusPill = document.getElementById('statusPill');
 const nextBtn = document.getElementById('nextBtn');
 const voterNow = document.getElementById('voterNow');
 const voterRemain = document.getElementById('voterRemain');
+const choiceA = document.getElementById('choiceA');
+const choiceB = document.getElementById('choiceB');
 
 function render(){
   const qu = questions[q];
@@ -194,45 +224,98 @@ function render(){
   qText.textContent = qu.text;
   labelA.textContent = 'A：' + qu.a;
   labelB.textContent = 'B：' + qu.b;
-  arenaA.innerHTML = arenaB.innerHTML = '';
-  votes = []; count = 0;
+
+  arenaA.innerHTML = '';
+  arenaB.innerHTML = '';
+
+  votes = [];
+  count = 0;
+  locked = false;
+
+  choiceA.disabled = false;
+  choiceB.disabled = false;
+
   updateProgress();
+
+  // ★投票が揃うまで「次へ」は押せない
   nextBtn.disabled = true;
 }
 
 function updateProgress(){
-  voterNow.innerHTML = `いま：<b>${count+1}人目</b>`;
-  voterRemain.innerHTML = `投票者：あと <b>${TOTAL-count}</b> 人`;
+  // 投票完了後は「完了」にしてもOK（今回は数を残す）
+  const now = Math.min(count + 1, TOTAL);
+  voterNow.innerHTML = `いま：<b>${now}人目</b>`;
+  voterRemain.innerHTML = `投票者：あと <b>${Math.max(TOTAL-count,0)}</b> 人`;
 }
 
 function vote(choice){
+  if(locked) return;
   if(count>=TOTAL) return;
+
   count++;
   votes.push(choice);
+
   const p = document.createElement('div');
   p.className = 'person';
   p.textContent = count;
   (choice==='A'?arenaA:arenaB).appendChild(p);
+
   updateProgress();
 
   if(count===TOTAL){
-    setTimeout(showResult,300);
+    setTimeout(showResult,200);
   }
 }
 
 function showResult(){
+  locked = true;
+
+  // 追加投票を防ぐ（見た目も「今は話す時間」に）
+  choiceA.disabled = true;
+  choiceB.disabled = true;
+
   const a = votes.filter(v=>v==='A').length;
   const b = votes.filter(v=>v==='B').length;
-  overlayText.textContent = a>b ? 'A が多い！' : b>a ? 'B が多い！' : 'イーブン！';
+
+  if(a>b){
+    overlayText.textContent = 'こっちが多い！（A）';
+    overlaySub.textContent = `A：${a}人\nB：${b}人`;
+  }else if(b>a){
+    overlayText.textContent = 'こっちが多い！（B）';
+    overlaySub.textContent = `A：${a}人\nB：${b}人`;
+  }else{
+    overlayText.textContent = 'イーブン！';
+    overlaySub.textContent = `A：${a}人\nB：${b}人`;
+  }
+
   overlay.classList.add('show');
+
+  // ★表示は3秒 → その後は「止まる」（自動で次へ行かない）
   setTimeout(()=>{
     overlay.classList.remove('show');
-    q++; if(q<questions.length){ render(); } else { nextBtn.disabled=true; }
+
+    // ★授業で話した後、先生が「次へ」を押して進める
+    nextBtn.disabled = false;
   },3000);
 }
 
-document.getElementById('choiceA').onclick=()=>vote('A');
-document.getElementById('choiceB').onclick=()=>vote('B');
+// ★次へ：押したら初めて次の問題へ
+nextBtn.addEventListener('click', () => {
+  if(nextBtn.disabled) return;
+
+  q++;
+  if(q < questions.length){
+    render();
+  }else{
+    // 最後まで行ったらボタン無効
+    nextBtn.disabled = true;
+    statusPill.textContent = `おしまい`;
+  }
+});
+
+// クリック1回=1人（シンプルに click でOK：二重登録しない）
+choiceA.addEventListener('click', () => vote('A'));
+choiceB.addEventListener('click', () => vote('B'));
 
 render();
 </script>
