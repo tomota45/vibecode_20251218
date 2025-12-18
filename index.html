@@ -323,7 +323,16 @@ const questions = [
   { text: '問題１\n“He is running.”\nどっちの意味？', a: '彼は走っている', b: '彼は走りたい' },
   { text: '問題２\nどっちが自然かな？', a: 'I like apple.', b: 'I like apples.' },
   { text: '問題３\n今聞こえたのはどっち？', a: 'ship', b: 'sheep', speakWord: 'sheep' },
-  { text: '問題４\nこのあと、なにをすると思う？', a: '学校に行く', b: '家に帰る' },
+　{
+  text: '問題４\n（英語の会話を聞いて）\nこのあと、なにをすると思う？',
+  a: '学校に行く',
+  b: '家に帰る',
+  dialogue: [
+    'Mom: Hurry up!',
+    "It's time for school.",
+    'Boy: OK!'
+  ]
+　},
 ];
 
   const TOTAL_VOTERS = 4;
