@@ -6,22 +6,14 @@
   <title>みんなの回答（1台疑似）</title>
   <style>
     :root{
-      /* 明るい子供向け配色 */
-      --bg1:#fff3b0;
-      --bg2:#b9fbc0;
-      --bg3:#a0c4ff;
+      --bg1:#fff3b0; --bg2:#b9fbc0; --bg3:#a0c4ff;
       --panel: rgba(255,255,255,.85);
-      --text:#10203a;
-      --muted:#4b5a73;
-
-      --a:#2b6cff;
-      --b:#ff3b7a;
-
+      --text:#10203a; --muted:#4b5a73;
+      --a:#2b6cff; --b:#ff3b7a;
       --shadow: 0 10px 30px rgba(16,32,58,.16);
       --shadow2: 0 16px 40px rgba(16,32,58,.18);
       --r:22px;
     }
-
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -35,16 +27,9 @@
         radial-gradient(900px 700px at 50% 110%, var(--bg1) 0%, rgba(255,243,176,0) 60%),
         linear-gradient(180deg, #fff 0%, #f7fbff 100%);
     }
-
     .wrap{ max-width: 860px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
-
-    header{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
-    }
-    .title{
-      font-size:22px; font-weight:1000; margin:0;
-      letter-spacing:.2px;
-    }
+    header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+    .title{ font-size:22px; font-weight:1000; margin:0; letter-spacing:.2px; }
     .pill{
       background: rgba(255,255,255,.75);
       border: 2px solid rgba(16,32,58,.10);
@@ -53,7 +38,6 @@
       box-shadow: var(--shadow);
       align-self:flex-start;
     }
-
     .card{
       background: var(--panel);
       border: 2px solid rgba(16,32,58,.10);
@@ -63,15 +47,8 @@
       backdrop-filter: blur(8px);
     }
     .card-inner{ padding:14px; }
-
     .qrow{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
-    .qtext{
-      font-size:19px;
-      font-weight:1000;
-      margin:0;
-      white-space:pre-line;
-      line-height:1.25;
-    }
+    .qtext{ font-size:19px; font-weight:1000; margin:0; white-space:pre-line; line-height:1.25; }
     .actions{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
 
     button{
@@ -95,9 +72,7 @@
       border-color: rgba(16,32,58,.08);
       box-shadow: 0 14px 26px rgba(43,108,255,.25);
     }
-    button.ghost{
-      background: rgba(255,255,255,.60);
-    }
+    button.ghost{ background: rgba(255,255,255,.60); }
 
     .grid{ display:grid; grid-template-columns: 1fr; gap:12px; }
     @media (min-width: 640px){ .grid{ grid-template-columns: 1fr 1fr; } }
@@ -116,10 +91,7 @@
     .choiceBtn:active{ transform: translateY(1px); }
     .choiceBtn:focus-visible{ outline: 4px solid rgba(43,108,255,.35); outline-offset: 3px; }
 
-    .head{
-      display:flex; align-items:center; justify-content:space-between;
-      padding: 12px 12px 8px; gap:10px;
-    }
+    .head{ display:flex; align-items:center; justify-content:space-between; padding: 12px 12px 8px; gap:10px; }
     .badge{
       display:inline-flex; align-items:center; gap:8px;
       font-weight:1100; font-size:14px;
@@ -183,21 +155,13 @@
     .result .big{ font-size: 22px; font-weight: 1100; margin:0 0 6px; }
     .result .row{ display:flex; justify-content:space-between; gap:10px; color:var(--muted); font-weight:1000; }
 
-    .progressHint{
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 1000;
-      padding: 0 0 2px;
-    }
+    .progressHint{ color: var(--muted); font-size: 12px; font-weight: 1000; padding: 0 0 2px; }
     .progressHint b{ color: var(--text); }
 
-    /* ====== ド派手オーバーレイ（中央・2秒） ====== */
+    /* ====== 派手オーバーレイ（中央・3秒） ====== */
     .overlay{
-      position: fixed;
-      inset: 0;
-      display:none;
-      align-items:center;
-      justify-content:center;
+      position: fixed; inset: 0;
+      display:none; align-items:center; justify-content:center;
       z-index: 50;
       background: radial-gradient(600px 600px at 50% 50%, rgba(255,255,255,.55), rgba(0,0,0,.15));
       backdrop-filter: blur(2px);
@@ -206,7 +170,7 @@
 
     .pop{
       position:relative;
-      width: min(620px, calc(100vw - 32px));
+      width: min(640px, calc(100vw - 32px));
       border-radius: 28px;
       padding: 22px 18px 18px;
       text-align:center;
@@ -220,33 +184,10 @@
       opacity: 0;
       animation: popIn .18s ease-out forwards;
     }
-    @keyframes popIn{
-      to { transform: scale(1); opacity: 1; }
-    }
-    .popMain{
-      font-size: 34px;
-      font-weight: 1200;
-      letter-spacing:.2px;
-      text-shadow: 0 3px 0 rgba(255,255,255,.55);
-      animation: wiggle .45s ease-in-out infinite;
-      user-select:none;
-    }
-    @keyframes wiggle{
-      0%,100%{ transform: rotate(-1deg); }
-      50%{ transform: rotate(1deg); }
-    }
-    .popSub{
-      margin-top: 10px;
-      font-size: 16px;
-      font-weight: 1100;
-      color: rgba(11,18,32,.78);
-    }
+    @keyframes popIn{ to { transform: scale(1); opacity: 1; } }
 
-    /* キラキラ（CSSだけ） */
     .sparkle{
-      position:absolute;
-      inset:-30px;
-      pointer-events:none;
+      position:absolute; inset:-30px; pointer-events:none;
       background:
         radial-gradient(6px 6px at 10% 30%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%),
         radial-gradient(7px 7px at 25% 70%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%),
@@ -260,6 +201,50 @@
       0%{ opacity:.55; transform: rotate(0deg); }
       50%{ opacity:1; transform: rotate(6deg); }
       100%{ opacity:.55; transform: rotate(12deg); }
+    }
+
+    .popMain{
+      font-size: 34px;
+      font-weight: 1200;
+      letter-spacing:.2px;
+      text-shadow: 0 3px 0 rgba(255,255,255,.55);
+      animation: wiggle .45s ease-in-out infinite;
+      user-select:none;
+    }
+    @keyframes wiggle{
+      0%,100%{ transform: rotate(-1deg); }
+      50%{ transform: rotate(1deg); }
+    }
+
+    /* どっちが多いか分かる大バッジ */
+    .winnerBadge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      margin: 12px auto 0;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 1200;
+      color: #fff;
+      box-shadow: 0 18px 30px rgba(16,32,58,.25);
+      border: 3px solid rgba(255,255,255,.85);
+      transform: scale(1);
+      animation: thump .6s ease-in-out infinite;
+    }
+    @keyframes thump{
+      0%,100%{ transform: scale(1); }
+      50%{ transform: scale(1.04); }
+    }
+    .winnerBadge.a{ background: linear-gradient(180deg, var(--a), #4338ca); }
+    .winnerBadge.b{ background: linear-gradient(180deg, var(--b), #ff7a00); }
+    .winnerBadge .bigLetter{ font-size: 26px; line-height:1; }
+
+    .popSub{
+      margin-top: 10px;
+      font-size: 16px;
+      font-weight: 1100;
+      color: rgba(11,18,32,.78);
     }
   </style>
 </head>
@@ -316,11 +301,18 @@
     </section>
   </div>
 
-  <!-- ド派手：中央に2秒 -->
+  <!-- 派手：中央に3秒 -->
   <div class="overlay" id="overlay" aria-hidden="true">
     <div class="pop" role="status" aria-live="polite">
       <div class="sparkle"></div>
       <div class="popMain" id="overlayMain">こっちが多い！</div>
+
+      <!-- 勝った側を大きく -->
+      <div id="winnerBadge" class="winnerBadge a" style="display:none;">
+        <span class="bigLetter" id="winnerLetter">A</span>
+        <span id="winnerLabel">（ラベル）</span>
+      </div>
+
       <div class="popSub" id="overlaySub">Aが多数</div>
     </div>
   </div>
@@ -358,6 +350,9 @@
   const overlay = document.getElementById("overlay");
   const overlayMain = document.getElementById("overlayMain");
   const overlaySub = document.getElementById("overlaySub");
+  const winnerBadge = document.getElementById("winnerBadge");
+  const winnerLetter = document.getElementById("winnerLetter");
+  const winnerLabel = document.getElementById("winnerLabel");
   let overlayTimer = null;
 
   let audioCtx = null;
@@ -404,12 +399,23 @@
     voterHint.innerHTML = locked ? `投票完了` : `いま：<b>${currentVoter}人目</b>`;
   }
 
-  function showCenterMessage(main, sub){
+  function showCenterMessage({main, sub, winner}) {
     overlayMain.textContent = main;
     overlaySub.textContent = sub;
+
+    if (winner === "A" || winner === "B") {
+      const q = questions[qIndex];
+      winnerBadge.style.display = "";
+      winnerBadge.className = "winnerBadge " + (winner === "A" ? "a" : "b");
+      winnerLetter.textContent = winner;
+      winnerLabel.textContent = winner === "A" ? `（${q.a}）` : `（${q.b}）`;
+    } else {
+      winnerBadge.style.display = "none";
+    }
+
     overlay.classList.add("show");
     if(overlayTimer) clearTimeout(overlayTimer);
-    overlayTimer = setTimeout(() => overlay.classList.remove("show"), 2000);
+    overlayTimer = setTimeout(() => overlay.classList.remove("show"), 3000); // ← 3秒表示
   }
 
   function renderQuestion(){
@@ -469,13 +475,25 @@
 
     if (aCount > bCount){
       resultHeadline.textContent = "結果：A が多い！";
-      showCenterMessage("こっちが多い！", `A（${questions[qIndex].a}）が多数`);
+      showCenterMessage({
+        main: "こっちが多い！",
+        sub: `Aが多数（${aCount}人）`,
+        winner: "A"
+      });
     } else if (bCount > aCount){
       resultHeadline.textContent = "結果：B が多い！";
-      showCenterMessage("こっちが多い！", `B（${questions[qIndex].b}）が多数`);
+      showCenterMessage({
+        main: "こっちが多い！",
+        sub: `Bが多数（${bCount}人）`,
+        winner: "B"
+      });
     } else {
       resultHeadline.textContent = "結果：イーブン！";
-      showCenterMessage("イーブン！", "同数でした");
+      showCenterMessage({
+        main: "イーブン！",
+        sub: "同数でした",
+        winner: null
+      });
     }
 
     resultBox.classList.add("show");
@@ -484,6 +502,7 @@
 
   function vote(choice){
     if(locked) return;
+
     votes[currentVoter] = choice;
     renderArenas();
 
@@ -495,15 +514,18 @@
     }
   }
 
-  function bindPress(el, fn){
-    el.addEventListener("pointerdown", () => fn(), {passive:true});
-    el.addEventListener("click", () => fn());
+  // ★重要：1回の操作で1回だけ発火させる（clickは使わない）
+  function bindOnePress(el, fn){
+    el.addEventListener("pointerup", (e) => {
+      e.preventDefault();
+      fn();
+    }, {passive:false});
   }
 
-  bindPress(document.getElementById("choiceA"), () => vote("A"));
-  bindPress(document.getElementById("choiceB"), () => vote("B"));
+  bindOnePress(document.getElementById("choiceA"), () => vote("A"));
+  bindOnePress(document.getElementById("choiceB"), () => vote("B"));
 
-  bindPress(resetBtn, () => {
+  bindOnePress(resetBtn, () => {
     locked = false;
     nextBtn.disabled = true;
     votes = Array(TOTAL_VOTERS + 1).fill(null);
@@ -514,7 +536,7 @@
     updateVoterHint();
   });
 
-  bindPress(speakBtn, async () => {
+  bindOnePress(speakBtn, async () => {
     try{
       audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
       await audioCtx.resume();
@@ -523,13 +545,13 @@
     if(q.speakWord) speakEnglishWord(q.speakWord);
   });
 
-  bindPress(nextBtn, () => {
+  bindOnePress(nextBtn, () => {
     if(nextBtn.disabled) return;
     if(qIndex < questions.length - 1){
       qIndex++;
       renderQuestion();
     } else {
-      showCenterMessage("おしまい！", "全部の問題が終わりました");
+      showCenterMessage({ main:"おしまい！", sub:"全部の問題が終わりました", winner:null });
       nextBtn.disabled = true;
     }
   });
