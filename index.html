@@ -6,12 +6,8 @@
   <title>みんなの回答（1台疑似）</title>
   <style>
     :root{
-      --bg:#0b1220;
-      --text:#e9eefc;
-      --muted:#a9b3d6;
-      --a:#2b6cff;
-      --b:#ff3b7a;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --bg:#0b1220; --text:#e9eefc; --muted:#a9b3d6;
+      --a:#2b6cff; --b:#ff3b7a; --shadow: 0 10px 30px rgba(0,0,0,.35);
       --r:18px;
     }
     *{box-sizing:border-box}
@@ -43,7 +39,7 @@
     .card-inner{ padding:14px; }
     .qrow{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
     .qtext{ font-size:18px; font-weight:1000; margin:0; white-space:pre-line; }
-    .actions{ display:flex; gap:8px; flex-wrap:wrap; }
+    .actions{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
 
     button{
       border:0; border-radius: 14px;
@@ -76,10 +72,8 @@
       overflow:hidden;
       min-height: 180px;
     }
-    .choiceBtn:focus-visible{
-      outline: 3px solid rgba(255,255,255,.35);
-      outline-offset: 2px;
-    }
+    .choiceBtn:focus-visible{ outline: 3px solid rgba(255,255,255,.35); outline-offset: 2px; }
+
     .head{ display:flex; align-items:center; justify-content:space-between; padding: 12px 12px 8px; gap:10px; }
     .badge{ display:inline-flex; align-items:center; gap:8px; font-weight:1000; font-size:14px; }
     .dot{ width:10px; height:10px; border-radius:50%; background: rgba(255,255,255,.35); box-shadow: 0 0 0 6px rgba(255,255,255,.06); }
@@ -136,11 +130,6 @@
     .result .big{ font-size: 22px; font-weight: 1100; margin:0 0 6px; }
     .result .row{ display:flex; justify-content:space-between; gap:10px; color:var(--muted); font-weight:900; }
 
-    .footerbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding-top:10px; }
-    .hint{ color:var(--muted); font-size:12px; line-height:1.35; }
-    .voters{ display:flex; gap:8px; flex-wrap:wrap; }
-    .voters button{ min-width: 110px; }
-
     .banner{
       display:none;
       position: fixed;
@@ -157,6 +146,14 @@
     }
     .banner.show{ display:block; }
     .banner .small{ display:block; margin-top:6px; font-size:12px; font-weight:900; color: rgba(6,16,24,.75); }
+
+    .progressHint{
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 0 0 2px;
+    }
+    .progressHint b{ color: var(--text); }
   </style>
 </head>
 
@@ -170,10 +167,12 @@
     <section class="card">
       <div class="card-inner">
         <div class="qrow">
-          <p class="qtext" id="questionText">問題</p>
+          <div>
+            <div class="progressHint" id="voterHint">いま：<b>1人目</b>（AかBをタップ）</div>
+            <p class="qtext" id="questionText">問題</p>
+          </div>
           <div class="actions">
             <button class="small ghost" id="resetBtn" type="button">リセット</button>
-            <!-- 問題3だけ表示：押したら "sheep" だけ鳴らす -->
             <button class="small" id="speakBtn" type="button" style="display:none;">🔊 sheep</button>
             <button class="small primary" id="nextBtn" type="button" disabled>次へ</button>
           </div>
@@ -206,13 +205,6 @@
             <span id="resultB">B: 0%</span>
           </div>
         </div>
-
-        <div class="divider"></div>
-
-        <div class="footerbar">
-          <div class="hint">投票者を選んでから A/B を押す（同じ人が押し直すと移動）</div>
-          <div class="voters" id="voterButtons"></div>
-        </div>
       </div>
     </section>
   </div>
@@ -224,7 +216,7 @@
 
 <script>
 (() => {
-  // PPTの「問題内容」を反映（問題3は ship/sheep、問題2も ship/sheep）
+  // ※問題文はPPTからそのまま／問題2は資料上が省略表記だったのでそのままにしています
   const questions = [
     { text: '問題１\n“He is running.”\nどっちの意味？', a: '彼は走っている', b: '彼は走りたい' },
     { text: '問題２\n…っち？', a: 'ship', b: 'sheep' },
@@ -234,8 +226,8 @@
 
   const TOTAL_VOTERS = 4;
   let qIndex = 0;
-  let selectedVoter = 1;
-  let votes = Array(TOTAL_VOTERS + 1).fill(null);
+  let votes = Array(TOTAL_VOTERS + 1).fill(null); // votes[1..4] = 'A'|'B'|null
+  let currentVoter = 1; // 1→2→3→4 と自動で進む
   let locked = false;
 
   const statusPill = document.getElementById("statusPill");
@@ -251,7 +243,7 @@
   const nextBtn = document.getElementById("nextBtn");
   const resetBtn = document.getElementById("resetBtn");
   const speakBtn = document.getElementById("speakBtn");
-  const voterButtons = document.getElementById("voterButtons");
+  const voterHint = document.getElementById("voterHint");
   const banner = document.getElementById("banner");
   const bannerMain = document.getElementById("bannerMain");
   const bannerSub = document.getElementById("bannerSub");
@@ -273,9 +265,7 @@
       osc.connect(gain).connect(audioCtx.destination);
       osc.start(t0);
       osc.stop(t0 + 0.2);
-    } catch(e){
-      console.warn("beep failed", e);
-    }
+    } catch(e){}
   }
 
   function speakEnglishWord(word){
@@ -298,6 +288,14 @@
     `;
   }
 
+  function updateVoterHint(){
+    if(locked){
+      voterHint.innerHTML = `投票完了`;
+      return;
+    }
+    voterHint.innerHTML = `いま：<b>${currentVoter}人目</b>（AかBをタップ）`;
+  }
+
   function renderQuestion(){
     const q = questions[qIndex];
     statusPill.textContent = `問題 ${qIndex + 1} / ${questions.length}`;
@@ -305,20 +303,18 @@
     labelA.textContent = q.a;
     labelB.textContent = q.b;
 
-    if (q.speakWord){
-      speakBtn.style.display = "";
-      speakBtn.textContent = `🔊 ${q.speakWord}`;
-    } else {
-      speakBtn.style.display = "none";
-    }
+    speakBtn.style.display = q.speakWord ? "" : "none";
+    if(q.speakWord) speakBtn.textContent = `🔊 ${q.speakWord}`;
 
     votes = Array(TOTAL_VOTERS + 1).fill(null);
+    currentVoter = 1;
     locked = false;
+
     nextBtn.disabled = true;
     resultBox.classList.remove("show");
     hideBanner();
     renderArenas();
-    renderVoterButtons();
+    updateVoterHint();
   }
 
   function renderArenas(){
@@ -331,22 +327,6 @@
       el.className = "person " + (choice === "A" ? "a" : "b");
       el.innerHTML = faceSVG() + `<div class="num">${v}</div>`;
       (choice === "A" ? arenaA : arenaB).appendChild(el);
-    }
-  }
-
-  function renderVoterButtons(){
-    voterButtons.innerHTML = "";
-    for(let v=1; v<=TOTAL_VOTERS; v++){
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "small " + (v === selectedVoter ? "primary" : "");
-      btn.textContent = `投票者${v}`;
-      btn.addEventListener("pointerdown", () => {
-        if(locked) return;
-        selectedVoter = v;
-        renderVoterButtons();
-      });
-      voterButtons.appendChild(btn);
     }
   }
 
@@ -367,6 +347,7 @@
 
   function tallyAndShow(){
     locked = true;
+    updateVoterHint();
     beepDon();
 
     const aCount = votes.filter(x => x === "A").length;
@@ -394,30 +375,42 @@
 
   function vote(choice){
     if(locked) return;
-    votes[selectedVoter] = choice;
+
+    // いまの投票者にセット
+    votes[currentVoter] = choice;
     renderArenas();
-    if(allVoted()) setTimeout(tallyAndShow, 250);
+
+    // 次の投票者へ
+    if(currentVoter < TOTAL_VOTERS) {
+      currentVoter++;
+      updateVoterHint();
+    } else {
+      // 4人目が入ったら集計
+      if(allVoted()) setTimeout(tallyAndShow, 250);
+    }
   }
 
-  // 反応しない系の吸収：pointerdown を主にして click を保険にする
-  const bindPress = (el, fn) => {
-    el.addEventListener("pointerdown", (e) => { fn(); }, {passive:true});
-    el.addEventListener("click", (e) => { fn(); });
-  };
+  // 反応しない系を減らす：pointerdown + click 両方
+  function bindPress(el, fn){
+    el.addEventListener("pointerdown", () => fn(), {passive:true});
+    el.addEventListener("click", () => fn());
+  }
 
   bindPress(document.getElementById("choiceA"), () => vote("A"));
   bindPress(document.getElementById("choiceB"), () => vote("B"));
 
-  resetBtn.addEventListener("pointerdown", () => {
+  bindPress(resetBtn, () => {
     locked = false;
     nextBtn.disabled = true;
     votes = Array(TOTAL_VOTERS + 1).fill(null);
+    currentVoter = 1;
     renderArenas();
     resultBox.classList.remove("show");
     hideBanner();
+    updateVoterHint();
   });
 
-  speakBtn.addEventListener("pointerdown", async () => {
+  bindPress(speakBtn, async () => {
     try{
       audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
       await audioCtx.resume();
@@ -426,7 +419,8 @@
     if(q.speakWord) speakEnglishWord(q.speakWord);
   });
 
-  nextBtn.addEventListener("pointerdown", () => {
+  bindPress(nextBtn, () => {
+    if(nextBtn.disabled) return;
     if(qIndex < questions.length - 1){
       qIndex++;
       renderQuestion();
