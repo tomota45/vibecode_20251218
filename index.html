@@ -6,48 +6,81 @@
   <title>みんなの回答（1台疑似）</title>
   <style>
     :root{
-      --bg:#0b1220; --text:#e9eefc; --muted:#a9b3d6;
-      --a:#2b6cff; --b:#ff3b7a; --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --r:18px;
+      /* 明るい子供向け配色 */
+      --bg1:#fff3b0;
+      --bg2:#b9fbc0;
+      --bg3:#a0c4ff;
+      --panel: rgba(255,255,255,.85);
+      --text:#10203a;
+      --muted:#4b5a73;
+
+      --a:#2b6cff;
+      --b:#ff3b7a;
+
+      --shadow: 0 10px 30px rgba(16,32,58,.16);
+      --shadow2: 0 16px 40px rgba(16,32,58,.18);
+      --r:22px;
     }
+
     *{box-sizing:border-box}
     body{
       margin:0;
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-      background: radial-gradient(1200px 800px at 20% 0%, #1b2b5b 0%, var(--bg) 55%, #070b14 100%);
       color:var(--text);
       min-height:100svh;
       padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+      background:
+        radial-gradient(900px 700px at 10% 10%, var(--bg3) 0%, rgba(160,196,255,0) 60%),
+        radial-gradient(900px 700px at 90% 0%, var(--bg2) 0%, rgba(185,251,192,0) 60%),
+        radial-gradient(900px 700px at 50% 110%, var(--bg1) 0%, rgba(255,243,176,0) 60%),
+        linear-gradient(180deg, #fff 0%, #f7fbff 100%);
     }
-    .wrap{ max-width: 820px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
-    header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
-    .title{ font-size:20px; font-weight:1000; margin:0; }
+
+    .wrap{ max-width: 860px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
+
+    header{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    }
+    .title{
+      font-size:22px; font-weight:1000; margin:0;
+      letter-spacing:.2px;
+    }
     .pill{
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.10);
-      padding: 8px 10px; border-radius:999px;
+      background: rgba(255,255,255,.75);
+      border: 2px solid rgba(16,32,58,.10);
+      padding: 8px 12px; border-radius:999px;
       font-size:12px; color:var(--muted); white-space:nowrap;
+      box-shadow: var(--shadow);
       align-self:flex-start;
     }
+
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
-      border: 1px solid rgba(255,255,255,.12);
+      background: var(--panel);
+      border: 2px solid rgba(16,32,58,.10);
       border-radius: var(--r);
-      box-shadow: var(--shadow);
+      box-shadow: var(--shadow2);
       overflow:hidden;
+      backdrop-filter: blur(8px);
     }
     .card-inner{ padding:14px; }
-    .qrow{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
-    .qtext{ font-size:18px; font-weight:1000; margin:0; white-space:pre-line; }
+
+    .qrow{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+    .qtext{
+      font-size:19px;
+      font-weight:1000;
+      margin:0;
+      white-space:pre-line;
+      line-height:1.25;
+    }
     .actions{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
 
     button{
-      border:0; border-radius: 14px;
+      border:0; border-radius: 16px;
       padding: 12px 14px;
-      font-weight:900; color:var(--text);
-      background: rgba(255,255,255,.09);
-      border: 1px solid rgba(255,255,255,.14);
-      box-shadow: 0 8px 18px rgba(0,0,0,.18);
+      font-weight:1000; color:var(--text);
+      background: rgba(255,255,255,.92);
+      border: 2px solid rgba(16,32,58,.12);
+      box-shadow: 0 10px 18px rgba(16,32,58,.14);
       cursor:pointer;
       transition: transform .06s ease, filter .2s ease;
       -webkit-tap-highlight-color: transparent;
@@ -55,9 +88,16 @@
       user-select:none;
     }
     button:active{ transform: translateY(1px) scale(.99); }
-    button.small{ padding:10px 12px; font-size:13px; border-radius:12px; }
-    button.primary{ background: rgba(43,108,255,.25); border-color: rgba(43,108,255,.45); }
-    button.ghost{ background: transparent; }
+    button.small{ padding:10px 12px; font-size:13px; border-radius:14px; }
+    button.primary{
+      color:#fff;
+      background: linear-gradient(180deg, rgba(43,108,255,1), rgba(67,56,202,1));
+      border-color: rgba(16,32,58,.08);
+      box-shadow: 0 14px 26px rgba(43,108,255,.25);
+    }
+    button.ghost{
+      background: rgba(255,255,255,.60);
+    }
 
     .grid{ display:grid; grid-template-columns: 1fr; gap:12px; }
     @media (min-width: 640px){ .grid{ grid-template-columns: 1fr 1fr; } }
@@ -66,94 +106,161 @@
       width:100%;
       text-align:left;
       border-radius: var(--r);
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.18);
+      border: 2px solid rgba(16,32,58,.10);
+      background: rgba(255,255,255,.78);
       padding:0;
       overflow:hidden;
-      min-height: 180px;
+      min-height: 190px;
+      box-shadow: var(--shadow);
     }
-    .choiceBtn:focus-visible{ outline: 3px solid rgba(255,255,255,.35); outline-offset: 2px; }
+    .choiceBtn:active{ transform: translateY(1px); }
+    .choiceBtn:focus-visible{ outline: 4px solid rgba(43,108,255,.35); outline-offset: 3px; }
 
-    .head{ display:flex; align-items:center; justify-content:space-between; padding: 12px 12px 8px; gap:10px; }
-    .badge{ display:inline-flex; align-items:center; gap:8px; font-weight:1000; font-size:14px; }
-    .dot{ width:10px; height:10px; border-radius:50%; background: rgba(255,255,255,.35); box-shadow: 0 0 0 6px rgba(255,255,255,.06); }
-    .badge.a .dot{ background: var(--a); box-shadow: 0 0 0 6px rgba(43,108,255,.14); }
-    .badge.b .dot{ background: var(--b); box-shadow: 0 0 0 6px rgba(255,59,122,.14); }
-    .label{ font-size:16px; font-weight:1000; padding-right: 10px; }
+    .head{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 12px 12px 8px; gap:10px;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      font-weight:1100; font-size:14px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(16,32,58,.06);
+      border: 2px solid rgba(16,32,58,.08);
+    }
+    .dot{ width:10px; height:10px; border-radius:50%; background: rgba(16,32,58,.35); box-shadow: 0 0 0 6px rgba(16,32,58,.06); }
+    .badge.a .dot{ background: var(--a); box-shadow: 0 0 0 6px rgba(43,108,255,.16); }
+    .badge.b .dot{ background: var(--b); box-shadow: 0 0 0 6px rgba(255,59,122,.16); }
+    .label{ font-size:17px; font-weight:1100; padding-right: 10px; }
 
     .arena{
       display:flex; gap:10px;
       padding: 10px 12px 14px;
       flex-wrap:wrap;
       align-content:flex-start;
-      min-height: 110px;
+      min-height: 120px;
     }
 
     .person{
-      width:52px; height:52px;
-      border-radius: 18px;
+      width:56px; height:56px;
+      border-radius: 20px;
       display:grid;
       place-items:center;
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.08);
-      box-shadow: 0 10px 18px rgba(0,0,0,.18);
+      border: 2px solid rgba(16,32,58,.10);
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 12px 18px rgba(16,32,58,.14);
       position:relative;
       user-select:none;
     }
-    .person.a{ border-color: rgba(43,108,255,.35); background: rgba(43,108,255,.14); }
-    .person.b{ border-color: rgba(255,59,122,.35); background: rgba(255,59,122,.14); }
-    .person svg{ width:34px; height:34px; }
+    .person.a{ border-color: rgba(43,108,255,.30); background: rgba(43,108,255,.10); }
+    .person.b{ border-color: rgba(255,59,122,.30); background: rgba(255,59,122,.10); }
+    .person svg{ width:36px; height:36px; }
     .person .num{
       position:absolute;
       right:-6px; top:-6px;
-      width:22px; height:22px;
+      width:24px; height:24px;
       border-radius: 999px;
       display:grid; place-items:center;
-      font-size:12px; font-weight:1000;
-      color:#0b1220;
-      background: rgba(255,255,255,.92);
-      border: 1px solid rgba(0,0,0,.08);
-      box-shadow: 0 10px 18px rgba(0,0,0,.18);
+      font-size:12px; font-weight:1100;
+      color:#fff;
+      background: linear-gradient(180deg, #111827, #0b1220);
+      border: 2px solid rgba(255,255,255,.85);
+      box-shadow: 0 12px 18px rgba(16,32,58,.20);
     }
 
-    .divider{ height:1px; background: rgba(255,255,255,.10); margin: 12px 0; }
+    .divider{ height:1px; background: rgba(16,32,58,.10); margin: 12px 0; }
 
     .result{
       display:none;
       margin-top: 12px;
       padding: 12px;
       border-radius: var(--r);
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
+      border: 2px solid rgba(16,32,58,.10);
+      background: rgba(255,255,255,.80);
+      box-shadow: var(--shadow);
     }
     .result.show{ display:block; }
     .result .big{ font-size: 22px; font-weight: 1100; margin:0 0 6px; }
-    .result .row{ display:flex; justify-content:space-between; gap:10px; color:var(--muted); font-weight:900; }
-
-    .banner{
-      display:none;
-      position: fixed;
-      left: 16px; right: 16px;
-      top: 16px;
-      padding: 14px 14px;
-      border-radius: 18px;
-      text-align:center;
-      font-weight:1100;
-      color: #061018;
-      background: linear-gradient(90deg, rgba(48,209,88,.95), rgba(255,214,10,.95));
-      box-shadow: 0 18px 40px rgba(0,0,0,.40);
-      z-index: 30;
-    }
-    .banner.show{ display:block; }
-    .banner .small{ display:block; margin-top:6px; font-size:12px; font-weight:900; color: rgba(6,16,24,.75); }
+    .result .row{ display:flex; justify-content:space-between; gap:10px; color:var(--muted); font-weight:1000; }
 
     .progressHint{
       color: var(--muted);
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 1000;
       padding: 0 0 2px;
     }
     .progressHint b{ color: var(--text); }
+
+    /* ====== ド派手オーバーレイ（中央・2秒） ====== */
+    .overlay{
+      position: fixed;
+      inset: 0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index: 50;
+      background: radial-gradient(600px 600px at 50% 50%, rgba(255,255,255,.55), rgba(0,0,0,.15));
+      backdrop-filter: blur(2px);
+    }
+    .overlay.show{ display:flex; }
+
+    .pop{
+      position:relative;
+      width: min(620px, calc(100vw - 32px));
+      border-radius: 28px;
+      padding: 22px 18px 18px;
+      text-align:center;
+      color: #0b1220;
+      background:
+        radial-gradient(800px 200px at 50% 0%, rgba(255,255,255,.75), rgba(255,255,255,0) 60%),
+        linear-gradient(90deg, rgba(48,209,88,.98), rgba(255,214,10,.98), rgba(255,105,180,.98));
+      box-shadow: 0 30px 80px rgba(16,32,58,.35);
+      border: 3px solid rgba(255,255,255,.75);
+      transform: scale(.85);
+      opacity: 0;
+      animation: popIn .18s ease-out forwards;
+    }
+    @keyframes popIn{
+      to { transform: scale(1); opacity: 1; }
+    }
+    .popMain{
+      font-size: 34px;
+      font-weight: 1200;
+      letter-spacing:.2px;
+      text-shadow: 0 3px 0 rgba(255,255,255,.55);
+      animation: wiggle .45s ease-in-out infinite;
+      user-select:none;
+    }
+    @keyframes wiggle{
+      0%,100%{ transform: rotate(-1deg); }
+      50%{ transform: rotate(1deg); }
+    }
+    .popSub{
+      margin-top: 10px;
+      font-size: 16px;
+      font-weight: 1100;
+      color: rgba(11,18,32,.78);
+    }
+
+    /* キラキラ（CSSだけ） */
+    .sparkle{
+      position:absolute;
+      inset:-30px;
+      pointer-events:none;
+      background:
+        radial-gradient(6px 6px at 10% 30%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%),
+        radial-gradient(7px 7px at 25% 70%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%),
+        radial-gradient(5px 5px at 55% 20%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%),
+        radial-gradient(7px 7px at 75% 65%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%),
+        radial-gradient(6px 6px at 90% 35%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%);
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
+      animation: twinkle 0.7s linear infinite;
+    }
+    @keyframes twinkle{
+      0%{ opacity:.55; transform: rotate(0deg); }
+      50%{ opacity:1; transform: rotate(6deg); }
+      100%{ opacity:.55; transform: rotate(12deg); }
+    }
   </style>
 </head>
 
@@ -168,12 +275,12 @@
       <div class="card-inner">
         <div class="qrow">
           <div>
-            <div class="progressHint" id="voterHint">いま：<b>1人目</b>（AかBをタップ）</div>
+            <div class="progressHint" id="voterHint">いま：<b>1人目</b></div>
             <p class="qtext" id="questionText">問題</p>
           </div>
           <div class="actions">
             <button class="small ghost" id="resetBtn" type="button">リセット</button>
-            <button class="small" id="speakBtn" type="button" style="display:none;">🔊 sheep</button>
+            <button class="small" id="speakBtn" type="button" style="display:none;">音声読み上げ</button>
             <button class="small primary" id="nextBtn" type="button" disabled>次へ</button>
           </div>
         </div>
@@ -209,14 +316,17 @@
     </section>
   </div>
 
-  <div class="banner" id="banner">
-    <div id="bannerMain">こっちが多い！</div>
-    <span class="small" id="bannerSub">A が多数</span>
+  <!-- ド派手：中央に2秒 -->
+  <div class="overlay" id="overlay" aria-hidden="true">
+    <div class="pop" role="status" aria-live="polite">
+      <div class="sparkle"></div>
+      <div class="popMain" id="overlayMain">こっちが多い！</div>
+      <div class="popSub" id="overlaySub">Aが多数</div>
+    </div>
   </div>
 
 <script>
 (() => {
-  // ※問題文はPPTからそのまま／問題2は資料上が省略表記だったのでそのままにしています
   const questions = [
     { text: '問題１\n“He is running.”\nどっちの意味？', a: '彼は走っている', b: '彼は走りたい' },
     { text: '問題２\n…っち？', a: 'ship', b: 'sheep' },
@@ -226,8 +336,8 @@
 
   const TOTAL_VOTERS = 4;
   let qIndex = 0;
-  let votes = Array(TOTAL_VOTERS + 1).fill(null); // votes[1..4] = 'A'|'B'|null
-  let currentVoter = 1; // 1→2→3→4 と自動で進む
+  let votes = Array(TOTAL_VOTERS + 1).fill(null);
+  let currentVoter = 1;
   let locked = false;
 
   const statusPill = document.getElementById("statusPill");
@@ -244,9 +354,11 @@
   const resetBtn = document.getElementById("resetBtn");
   const speakBtn = document.getElementById("speakBtn");
   const voterHint = document.getElementById("voterHint");
-  const banner = document.getElementById("banner");
-  const bannerMain = document.getElementById("bannerMain");
-  const bannerSub = document.getElementById("bannerSub");
+
+  const overlay = document.getElementById("overlay");
+  const overlayMain = document.getElementById("overlayMain");
+  const overlaySub = document.getElementById("overlaySub");
+  let overlayTimer = null;
 
   let audioCtx = null;
 
@@ -257,14 +369,14 @@
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.type = "sine";
-      osc.frequency.setValueAtTime(180, t0);
-      osc.frequency.exponentialRampToValueAtTime(95, t0 + 0.12);
+      osc.frequency.setValueAtTime(220, t0);
+      osc.frequency.exponentialRampToValueAtTime(110, t0 + 0.14);
       gain.gain.setValueAtTime(0.0001, t0);
-      gain.gain.exponentialRampToValueAtTime(0.6, t0 + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.18);
+      gain.gain.exponentialRampToValueAtTime(0.8, t0 + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.22);
       osc.connect(gain).connect(audioCtx.destination);
       osc.start(t0);
-      osc.stop(t0 + 0.2);
+      osc.stop(t0 + 0.24);
     } catch(e){}
   }
 
@@ -281,19 +393,23 @@
   function faceSVG() {
     return `
       <svg viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="22" cy="26" r="4" fill="rgba(255,255,255,.92)"></circle>
-        <circle cx="42" cy="26" r="4" fill="rgba(255,255,255,.92)"></circle>
-        <path d="M22 40c5 6 15 6 20 0" fill="none" stroke="rgba(255,255,255,.92)" stroke-width="5" stroke-linecap="round"></path>
+        <circle cx="22" cy="26" r="4" fill="rgba(16,32,58,.95)"></circle>
+        <circle cx="42" cy="26" r="4" fill="rgba(16,32,58,.95)"></circle>
+        <path d="M22 40c5 6 15 6 20 0" fill="none" stroke="rgba(16,32,58,.95)" stroke-width="5" stroke-linecap="round"></path>
       </svg>
     `;
   }
 
   function updateVoterHint(){
-    if(locked){
-      voterHint.innerHTML = `投票完了`;
-      return;
-    }
-    voterHint.innerHTML = `いま：<b>${currentVoter}人目</b>（AかBをタップ）`;
+    voterHint.innerHTML = locked ? `投票完了` : `いま：<b>${currentVoter}人目</b>`;
+  }
+
+  function showCenterMessage(main, sub){
+    overlayMain.textContent = main;
+    overlaySub.textContent = sub;
+    overlay.classList.add("show");
+    if(overlayTimer) clearTimeout(overlayTimer);
+    overlayTimer = setTimeout(() => overlay.classList.remove("show"), 2000);
   }
 
   function renderQuestion(){
@@ -304,7 +420,7 @@
     labelB.textContent = q.b;
 
     speakBtn.style.display = q.speakWord ? "" : "none";
-    if(q.speakWord) speakBtn.textContent = `🔊 ${q.speakWord}`;
+    speakBtn.textContent = "音声読み上げ";
 
     votes = Array(TOTAL_VOTERS + 1).fill(null);
     currentVoter = 1;
@@ -312,8 +428,9 @@
 
     nextBtn.disabled = true;
     resultBox.classList.remove("show");
-    hideBanner();
-    renderArenas();
+    arenaA.innerHTML = "";
+    arenaB.innerHTML = "";
+    overlay.classList.remove("show");
     updateVoterHint();
   }
 
@@ -337,14 +454,6 @@
     return true;
   }
 
-  function showBanner(main, sub){
-    bannerMain.textContent = main;
-    bannerSub.textContent = sub;
-    banner.classList.add("show");
-    setTimeout(() => hideBanner(), 1600);
-  }
-  function hideBanner(){ banner.classList.remove("show"); }
-
   function tallyAndShow(){
     locked = true;
     updateVoterHint();
@@ -360,13 +469,13 @@
 
     if (aCount > bCount){
       resultHeadline.textContent = "結果：A が多い！";
-      showBanner("こっちが多い！", `A（${questions[qIndex].a}）が多数`);
+      showCenterMessage("こっちが多い！", `A（${questions[qIndex].a}）が多数`);
     } else if (bCount > aCount){
       resultHeadline.textContent = "結果：B が多い！";
-      showBanner("こっちが多い！", `B（${questions[qIndex].b}）が多数`);
+      showCenterMessage("こっちが多い！", `B（${questions[qIndex].b}）が多数`);
     } else {
       resultHeadline.textContent = "結果：イーブン！";
-      showBanner("イーブン！", "同数でした");
+      showCenterMessage("イーブン！", "同数でした");
     }
 
     resultBox.classList.add("show");
@@ -375,22 +484,17 @@
 
   function vote(choice){
     if(locked) return;
-
-    // いまの投票者にセット
     votes[currentVoter] = choice;
     renderArenas();
 
-    // 次の投票者へ
     if(currentVoter < TOTAL_VOTERS) {
       currentVoter++;
       updateVoterHint();
     } else {
-      // 4人目が入ったら集計
       if(allVoted()) setTimeout(tallyAndShow, 250);
     }
   }
 
-  // 反応しない系を減らす：pointerdown + click 両方
   function bindPress(el, fn){
     el.addEventListener("pointerdown", () => fn(), {passive:true});
     el.addEventListener("click", () => fn());
@@ -406,7 +510,7 @@
     currentVoter = 1;
     renderArenas();
     resultBox.classList.remove("show");
-    hideBanner();
+    overlay.classList.remove("show");
     updateVoterHint();
   });
 
@@ -425,7 +529,7 @@
       qIndex++;
       renderQuestion();
     } else {
-      showBanner("おしまい！", "全部の問題が終わりました");
+      showCenterMessage("おしまい！", "全部の問題が終わりました");
       nextBtn.disabled = true;
     }
   });
