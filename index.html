@@ -6,22 +6,14 @@
   <title>みんなの回答（1台疑似）</title>
   <style>
     :root{
-      /* 明るい子供向け配色 */
-      --bg1:#fff3b0;
-      --bg2:#b9fbc0;
-      --bg3:#a0c4ff;
+      --bg1:#fff3b0; --bg2:#b9fbc0; --bg3:#a0c4ff;
       --panel: rgba(255,255,255,.86);
-      --text:#10203a;
-      --muted:#4b5a73;
-
-      --a:#2b6cff;
-      --b:#ff3b7a;
-
+      --text:#10203a; --muted:#4b5a73;
+      --a:#2b6cff; --b:#ff3b7a;
       --shadow: 0 10px 30px rgba(16,32,58,.16);
       --shadow2: 0 16px 40px rgba(16,32,58,.18);
       --r:22px;
     }
-
     *{box-sizing:border-box}
     body{
       margin:0;
@@ -35,23 +27,15 @@
         radial-gradient(900px 700px at 50% 110%, var(--bg1) 0%, rgba(255,243,176,0) 60%),
         linear-gradient(180deg, #fff 0%, #f7fbff 100%);
     }
-
     .wrap{ max-width: 860px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
-
-    header{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
-    }
-    .title{
-      font-size:22px; font-weight:1000; margin:0;
-      letter-spacing:.2px;
-    }
+    header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+    .title{ font-size:22px; font-weight:1000; margin:0; }
     .pill{
       background: rgba(255,255,255,.75);
       border: 2px solid rgba(16,32,58,.10);
       padding: 8px 12px; border-radius:999px;
-      font-size:12px; color:var(--muted); white-space:nowrap;
+      font-size:12px; color:var(--muted);
       box-shadow: var(--shadow);
-      align-self:flex-start;
     }
 
     .card{
@@ -59,19 +43,23 @@
       border: 2px solid rgba(16,32,58,.10);
       border-radius: var(--r);
       box-shadow: var(--shadow2);
-      overflow:hidden;
-      backdrop-filter: blur(8px);
     }
     .card-inner{ padding:14px; }
 
     .qrow{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
-    .qtext{
-      font-size:19px;
+    .qtext{ font-size:19px; font-weight:1000; margin:0; white-space:pre-line; line-height:1.25; }
+
+    .progress{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-top:6px;
+      font-size:13px;
       font-weight:1000;
-      margin:0;
-      white-space:pre-line;
-      line-height:1.25;
+      color:var(--muted);
     }
+    .progress b{ color:var(--text); }
+
     .actions{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
 
     button{
@@ -82,524 +70,171 @@
       border: 2px solid rgba(16,32,58,.12);
       box-shadow: 0 10px 18px rgba(16,32,58,.14);
       cursor:pointer;
-      transition: transform .06s ease, filter .2s ease;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
-      user-select:none;
     }
-    button:active{ transform: translateY(1px) scale(.99); }
     button.small{ padding:10px 12px; font-size:13px; border-radius:14px; }
     button.primary{
       color:#fff;
       background: linear-gradient(180deg, rgba(43,108,255,1), rgba(67,56,202,1));
-      border-color: rgba(16,32,58,.08);
-      box-shadow: 0 14px 26px rgba(43,108,255,.25);
     }
-    button.ghost{
-      background: rgba(255,255,255,.60);
-    }
-    button:disabled{
-      opacity:.55;
-      cursor:not-allowed;
-      filter: grayscale(.2);
-    }
+    button:disabled{ opacity:.55; }
 
     .grid{ display:grid; grid-template-columns: 1fr; gap:12px; }
     @media (min-width: 640px){ .grid{ grid-template-columns: 1fr 1fr; } }
 
-    /* ✅ ひとつ前の「でかくて押しやすい」カード型A/B */
     .choiceBtn{
       width:100%;
-      text-align:left;
       border-radius: var(--r);
       border: 3px solid rgba(16,32,58,.10);
       background: rgba(255,255,255,.90);
-      padding:0;
-      overflow:hidden;
-      min-height: 210px;
+      min-height: 200px;
       box-shadow: 0 16px 32px rgba(16,32,58,.14);
     }
-    .choiceBtn:active{ transform: translateY(1px); }
-    .choiceBtn:focus-visible{ outline: 4px solid rgba(43,108,255,.35); outline-offset: 3px; }
-
     .head{
       display:flex; align-items:center; justify-content:space-between;
-      padding: 12px 12px 8px; gap:10px;
+      padding: 12px;
     }
-    .badge{
-      display:inline-flex; align-items:center; gap:8px;
-      font-weight:1200; font-size:14px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(16,32,58,.06);
-      border: 2px solid rgba(16,32,58,.08);
-    }
-    .dot{ width:10px; height:10px; border-radius:50%; background: rgba(16,32,58,.35); box-shadow: 0 0 0 6px rgba(16,32,58,.06); }
-    .badge.a .dot{ background: var(--a); box-shadow: 0 0 0 6px rgba(43,108,255,.16); }
-    .badge.b .dot{ background: var(--b); box-shadow: 0 0 0 6px rgba(255,59,122,.16); }
-    .label{
-      font-size:18px;
-      font-weight:1200;
-      padding-right: 10px;
-      text-align:right;
-      line-height:1.15;
-      max-width: 70%;
-      word-break: break-word;
-    }
+    .label{ font-size:18px; font-weight:1200; }
 
-    .arena{
-      display:flex; gap:10px;
-      padding: 10px 12px 14px;
-      flex-wrap:wrap;
-      align-content:flex-start;
-      min-height: 120px;
-    }
-
+    .arena{ display:flex; gap:10px; padding: 10px 12px 14px; flex-wrap:wrap; min-height: 100px; }
     .person{
-      width:56px; height:56px;
-      border-radius: 20px;
-      display:grid;
-      place-items:center;
-      border: 2px solid rgba(16,32,58,.10);
-      background: rgba(255,255,255,.92);
-      box-shadow: 0 12px 18px rgba(16,32,58,.14);
-      position:relative;
-      user-select:none;
-    }
-    .person.a{ border-color: rgba(43,108,255,.30); background: rgba(43,108,255,.10); }
-    .person.b{ border-color: rgba(255,59,122,.30); background: rgba(255,59,122,.10); }
-    .person svg{ width:36px; height:36px; }
-    .person .num{
-      position:absolute;
-      right:-6px; top:-6px;
-      width:24px; height:24px;
-      border-radius: 999px;
+      width:52px; height:52px;
+      border-radius: 18px;
       display:grid; place-items:center;
-      font-size:12px; font-weight:1100;
-      color:#fff;
-      background: linear-gradient(180deg, #111827, #0b1220);
-      border: 2px solid rgba(255,255,255,.85);
-      box-shadow: 0 12px 18px rgba(16,32,58,.20);
+      background:#e6f0ff; font-weight:1100;
     }
 
     .divider{ height:1px; background: rgba(16,32,58,.10); margin: 12px 0; }
 
-    .result{
-      display:none;
-      margin-top: 12px;
-      padding: 12px;
-      border-radius: var(--r);
-      border: 2px solid rgba(16,32,58,.10);
-      background: rgba(255,255,255,.88);
-      box-shadow: var(--shadow);
-    }
-    .result.show{ display:block; }
-    .result .big{ font-size: 22px; font-weight: 1100; margin:0 0 6px; }
-    .result .row{ display:flex; justify-content:space-between; gap:10px; color:var(--muted); font-weight:1100; }
-
-    .progressHint{
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 1100;
-      padding: 0 0 2px;
-    }
-    .progressHint b{ color: var(--text); }
-
-    /* ====== 派手オーバーレイ（中央・3秒） ====== */
     .overlay{
-      position: fixed; inset: 0;
-      display:none; align-items:center; justify-content:center;
-      z-index: 50;
-      background: radial-gradient(600px 600px at 50% 50%, rgba(255,255,255,.55), rgba(0,0,0,.15));
-      backdrop-filter: blur(2px);
+      position: fixed; inset: 0; display:none;
+      align-items:center; justify-content:center;
+      background: rgba(0,0,0,.25);
     }
     .overlay.show{ display:flex; }
-
     .pop{
-      position:relative;
-      width: min(680px, calc(100vw - 32px));
-      border-radius: 28px;
-      padding: 22px 18px 18px;
-      text-align:center;
-      color: #0b1220;
-      background:
-        radial-gradient(800px 200px at 50% 0%, rgba(255,255,255,.75), rgba(255,255,255,0) 60%),
-        linear-gradient(90deg, rgba(48,209,88,.98), rgba(255,214,10,.98), rgba(255,105,180,.98));
-      box-shadow: 0 30px 80px rgba(16,32,58,.35);
-      border: 3px solid rgba(255,255,255,.75);
-      transform: scale(.85);
-      opacity: 0;
-      animation: popIn .18s ease-out forwards;
-    }
-    @keyframes popIn{ to { transform: scale(1); opacity: 1; } }
-
-    .sparkle{
-      position:absolute; inset:-30px; pointer-events:none;
-      background:
-        radial-gradient(6px 6px at 10% 30%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%),
-        radial-gradient(7px 7px at 25% 70%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%),
-        radial-gradient(5px 5px at 55% 20%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%),
-        radial-gradient(7px 7px at 75% 65%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%),
-        radial-gradient(6px 6px at 90% 35%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%);
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
-      animation: twinkle 0.7s linear infinite;
-    }
-    @keyframes twinkle{
-      0%{ opacity:.55; transform: rotate(0deg); }
-      50%{ opacity:1; transform: rotate(6deg); }
-      100%{ opacity:.55; transform: rotate(12deg); }
-    }
-
-    .popMain{
-      font-size: 36px;
-      font-weight: 1200;
-      letter-spacing:.2px;
-      text-shadow: 0 3px 0 rgba(255,255,255,.55);
-      animation: wiggle .45s ease-in-out infinite;
-      user-select:none;
-    }
-    @keyframes wiggle{
-      0%,100%{ transform: rotate(-1deg); }
-      50%{ transform: rotate(1deg); }
-    }
-
-    .winnerBadge{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      margin: 12px auto 0;
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-weight: 1200;
-      color: #fff;
-      box-shadow: 0 18px 30px rgba(16,32,58,.25);
-      border: 3px solid rgba(255,255,255,.85);
-      transform: scale(1);
-      animation: thump .6s ease-in-out infinite;
-    }
-    @keyframes thump{
-      0%,100%{ transform: scale(1); }
-      50%{ transform: scale(1.05); }
-    }
-    .winnerBadge.a{ background: linear-gradient(180deg, var(--a), #4338ca); }
-    .winnerBadge.b{ background: linear-gradient(180deg, var(--b), #ff7a00); }
-    .winnerBadge .bigLetter{ font-size: 26px; line-height:1; }
-
-    .popSub{
-      margin-top: 10px;
-      font-size: 16px;
-      font-weight: 1100;
-      color: rgba(11,18,32,.78);
-      white-space:pre-line;
+      background:linear-gradient(90deg,#6ee7b7,#fde68a,#fca5a5);
+      padding:28px 32px;
+      border-radius:28px;
+      font-size:30px;
+      font-weight:1200;
+      box-shadow:0 30px 80px rgba(0,0,0,.35);
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <header>
-      <h1 class="title">みんなの回答</h1>
-      <div class="pill" id="statusPill">問題 1 / 4</div>
-    </header>
+<div class="wrap">
+  <header>
+    <h1 class="title">みんなの回答</h1>
+    <div class="pill" id="statusPill">問題 1 / 4</div>
+  </header>
 
-    <section class="card">
-      <div class="card-inner">
-        <div class="qrow">
-          <div>
-            <div class="progressHint" id="voterHint">いま：<b>1人目</b></div>
-            <p class="qtext" id="questionText">問題</p>
-          </div>
-          <div class="actions">
-            <button class="small ghost" id="resetBtn" type="button">リセット</button>
-            <!-- 問題3のみ表示：表示名は答えが分からないようにする -->
-            <button class="small" id="speakBtn" type="button" style="display:none;">音声読み上げ</button>
-            <button class="small primary" id="nextBtn" type="button" disabled>次へ</button>
+  <section class="card">
+    <div class="card-inner">
+      <div class="qrow">
+        <div>
+          <p class="qtext" id="questionText"></p>
+          <div class="progress">
+            <span id="voterNow">いま：<b>1人目</b></span>
+            <span id="voterRemain">投票者：あと <b>4</b> 人</span>
           </div>
         </div>
-
-        <div class="divider"></div>
-
-        <div class="grid">
-          <button class="choiceBtn" id="choiceA" type="button" aria-label="Aを選ぶ">
-            <div class="head">
-              <div class="badge a"><span class="dot"></span><span>A</span></div>
-              <div class="label" id="labelA">A</div>
-            </div>
-            <div class="arena" id="arenaA"></div>
-          </button>
-
-          <button class="choiceBtn" id="choiceB" type="button" aria-label="Bを選ぶ">
-            <div class="head">
-              <div class="badge b"><span class="dot"></span><span>B</span></div>
-              <div class="label" id="labelB">B</div>
-            </div>
-            <div class="arena" id="arenaB"></div>
-          </button>
-        </div>
-
-        <div class="result" id="resultBox">
-          <p class="big" id="resultHeadline">結果</p>
-          <div class="row">
-            <span id="resultA">A: 0%</span>
-            <span id="resultB">B: 0%</span>
-          </div>
+        <div class="actions">
+          <button class="small" id="nextBtn" disabled>次へ</button>
         </div>
       </div>
-    </section>
-  </div>
 
-  <!-- 派手：中央に3秒 -->
-  <div class="overlay" id="overlay" aria-hidden="true">
-    <div class="pop" role="status" aria-live="polite">
-      <div class="sparkle"></div>
-      <div class="popMain" id="overlayMain">こっちが多い！</div>
+      <div class="divider"></div>
 
-      <div id="winnerBadge" class="winnerBadge a" style="display:none;">
-        <span class="bigLetter" id="winnerLetter">A</span>
-        <span id="winnerLabel">（ラベル）</span>
+      <div class="grid">
+        <button class="choiceBtn" id="choiceA"><div class="head"><div class="label" id="labelA"></div></div><div class="arena" id="arenaA"></div></button>
+        <button class="choiceBtn" id="choiceB"><div class="head"><div class="label" id="labelB"></div></div><div class="arena" id="arenaB"></div></button>
       </div>
-
-      <div class="popSub" id="overlaySub">Aが多数</div>
     </div>
-  </div>
+  </section>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="pop" id="overlayText">こっちが多い！</div>
+</div>
 
 <script>
-(() => {
-  // ✅ 問題4：会話を問題文内に表示（テキスト表示）
-  const questions = [
-    { text: '問題１\\n“He is running.”\\nどっちの意味？', a: '彼は走っている', b: '彼は走りたい' },
-    { text: '問題２\\nどっちが自然かな？', a: 'I like apple.', b: 'I like apples.' },
-    { text: '問題３\\n今聞こえたのはどっち？', a: 'ship', b: 'sheep', speakWord: 'sheep' },
-    { text: `問題４
+const questions = [
+  { text: '問題１\n“He is running.”\nどっちの意味？', a: '彼は走っている', b: '彼は走りたい' },
+  { text: '問題２\nどっちが自然かな？\nA：I like apple.\nB：I like apples.', a: 'I like apple.', b: 'I like apples.' },
+  { text: '問題３\n今聞こえたのはどっち？', a: 'ship', b: 'sheep' },
+  { text: `問題４
 Mom: Hurry up!
 It's time for school.
 Boy: OK!
 
 このあと、なにをすると思う？`, a: '学校に行く', b: '家に帰る' },
-  ];
+];
 
-  const TOTAL_VOTERS = 4;
-  let qIndex = 0;
-  let votes = Array(TOTAL_VOTERS + 1).fill(null); // votes[1..4] = 'A'|'B'|null
-  let currentVoter = 1;
-  let locked = false;
+const TOTAL = 4;
+let q = 0, count = 0, votes = [];
 
-  const statusPill = document.getElementById("statusPill");
-  const questionText = document.getElementById("questionText");
-  const labelA = document.getElementById("labelA");
-  const labelB = document.getElementById("labelB");
-  const arenaA = document.getElementById("arenaA");
-  const arenaB = document.getElementById("arenaB");
-  const resultBox = document.getElementById("resultBox");
-  const resultHeadline = document.getElementById("resultHeadline");
-  const resultA = document.getElementById("resultA");
-  const resultB = document.getElementById("resultB");
-  const nextBtn = document.getElementById("nextBtn");
-  const resetBtn = document.getElementById("resetBtn");
-  const speakBtn = document.getElementById("speakBtn");
-  const voterHint = document.getElementById("voterHint");
+const qText = document.getElementById('questionText');
+const labelA = document.getElementById('labelA');
+const labelB = document.getElementById('labelB');
+const arenaA = document.getElementById('arenaA');
+const arenaB = document.getElementById('arenaB');
+const overlay = document.getElementById('overlay');
+const overlayText = document.getElementById('overlayText');
+const statusPill = document.getElementById('statusPill');
+const nextBtn = document.getElementById('nextBtn');
+const voterNow = document.getElementById('voterNow');
+const voterRemain = document.getElementById('voterRemain');
 
-  const overlay = document.getElementById("overlay");
-  const overlayMain = document.getElementById("overlayMain");
-  const overlaySub = document.getElementById("overlaySub");
-  const winnerBadge = document.getElementById("winnerBadge");
-  const winnerLetter = document.getElementById("winnerLetter");
-  const winnerLabel = document.getElementById("winnerLabel");
-  let overlayTimer = null;
+function render(){
+  const qu = questions[q];
+  statusPill.textContent = `問題 ${q+1} / ${questions.length}`;
+  qText.textContent = qu.text;
+  labelA.textContent = 'A：' + qu.a;
+  labelB.textContent = 'B：' + qu.b;
+  arenaA.innerHTML = arenaB.innerHTML = '';
+  votes = []; count = 0;
+  updateProgress();
+  nextBtn.disabled = true;
+}
 
-  let audioCtx = null;
+function updateProgress(){
+  voterNow.innerHTML = `いま：<b>${count+1}人目</b>`;
+  voterRemain.innerHTML = `投票者：あと <b>${TOTAL-count}</b> 人`;
+}
 
-  function beepDon() {
-    try{
-      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-      const t0 = audioCtx.currentTime;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(220, t0);
-      osc.frequency.exponentialRampToValueAtTime(110, t0 + 0.14);
-      gain.gain.setValueAtTime(0.0001, t0);
-      gain.gain.exponentialRampToValueAtTime(0.85, t0 + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.22);
-      osc.connect(gain).connect(audioCtx.destination);
-      osc.start(t0);
-      osc.stop(t0 + 0.24);
-    } catch(e){}
+function vote(choice){
+  if(count>=TOTAL) return;
+  count++;
+  votes.push(choice);
+  const p = document.createElement('div');
+  p.className = 'person';
+  p.textContent = count;
+  (choice==='A'?arenaA:arenaB).appendChild(p);
+  updateProgress();
+
+  if(count===TOTAL){
+    setTimeout(showResult,300);
   }
+}
 
-  function speakEnglishWord(word){
-    if (!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const ut = new SpeechSynthesisUtterance(word);
-    ut.lang = "en-US";
-    ut.rate = 0.95;
-    ut.pitch = 1.0;
-    window.speechSynthesis.speak(ut);
-  }
+function showResult(){
+  const a = votes.filter(v=>v==='A').length;
+  const b = votes.filter(v=>v==='B').length;
+  overlayText.textContent = a>b ? 'A が多い！' : b>a ? 'B が多い！' : 'イーブン！';
+  overlay.classList.add('show');
+  setTimeout(()=>{
+    overlay.classList.remove('show');
+    q++; if(q<questions.length){ render(); } else { nextBtn.disabled=true; }
+  },3000);
+}
 
-  function faceSVG() {
-    return `
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="22" cy="26" r="4" fill="rgba(16,32,58,.95)"></circle>
-        <circle cx="42" cy="26" r="4" fill="rgba(16,32,58,.95)"></circle>
-        <path d="M22 40c5 6 15 6 20 0" fill="none" stroke="rgba(16,32,58,.95)" stroke-width="5" stroke-linecap="round"></path>
-      </svg>
-    `;
-  }
+document.getElementById('choiceA').onclick=()=>vote('A');
+document.getElementById('choiceB').onclick=()=>vote('B');
 
-  function updateVoterHint(){
-    voterHint.innerHTML = locked ? `投票完了` : `いま：<b>${currentVoter}人目</b>`;
-  }
-
-  function showCenterMessage({main, sub, winner}) {
-    overlayMain.textContent = main;
-    overlaySub.textContent = sub;
-
-    if (winner === "A" || winner === "B") {
-      const q = questions[qIndex];
-      winnerBadge.style.display = "";
-      winnerBadge.className = "winnerBadge " + (winner === "A" ? "a" : "b");
-      winnerLetter.textContent = winner;
-      winnerLabel.textContent = winner === "A" ? `（${q.a}）` : `（${q.b}）`;
-    } else {
-      winnerBadge.style.display = "none";
-    }
-
-    overlay.classList.add("show");
-    if(overlayTimer) clearTimeout(overlayTimer);
-    overlayTimer = setTimeout(() => overlay.classList.remove("show"), 3000); // 3秒表示
-  }
-
-  function renderQuestion(){
-    const q = questions[qIndex];
-    statusPill.textContent = `問題 ${qIndex + 1} / ${questions.length}`;
-    questionText.textContent = q.text;
-    labelA.textContent = q.a;
-    labelB.textContent = q.b;
-
-    // 問題3のみ表示：ボタン名は「音声読み上げ」
-    speakBtn.style.display = q.speakWord ? "" : "none";
-    speakBtn.textContent = "音声読み上げ";
-
-    votes = Array(TOTAL_VOTERS + 1).fill(null);
-    currentVoter = 1;
-    locked = false;
-
-    nextBtn.disabled = true;
-    resultBox.classList.remove("show");
-    overlay.classList.remove("show");
-    arenaA.innerHTML = "";
-    arenaB.innerHTML = "";
-    updateVoterHint();
-  }
-
-  function renderArenas(){
-    arenaA.innerHTML = "";
-    arenaB.innerHTML = "";
-    for(let v=1; v<=TOTAL_VOTERS; v++){
-      const choice = votes[v];
-      if(!choice) continue;
-      const el = document.createElement("div");
-      el.className = "person " + (choice === "A" ? "a" : "b");
-      el.innerHTML = faceSVG() + `<div class="num">${v}</div>`;
-      (choice === "A" ? arenaA : arenaB).appendChild(el);
-    }
-  }
-
-  function allVoted(){
-    for(let v=1; v<=TOTAL_VOTERS; v++){
-      if(!votes[v]) return false;
-    }
-    return true;
-  }
-
-  function tallyAndShow(){
-    locked = true;
-    updateVoterHint();
-    beepDon();
-
-    const aCount = votes.filter(x => x === "A").length;
-    const bCount = votes.filter(x => x === "B").length;
-    const aPct = Math.round((aCount / TOTAL_VOTERS) * 100);
-    const bPct = 100 - aPct;
-
-    resultA.textContent = `A: ${aPct}%（${aCount}人）`;
-    resultB.textContent = `B: ${bPct}%（${bCount}人）`;
-
-    if (aCount > bCount){
-      resultHeadline.textContent = "結果：A が多い！";
-      showCenterMessage({ main: "こっちが多い！", sub: `Aが多数（${aCount}人）`, winner: "A" });
-    } else if (bCount > aCount){
-      resultHeadline.textContent = "結果：B が多い！";
-      showCenterMessage({ main: "こっちが多い！", sub: `Bが多数（${bCount}人）`, winner: "B" });
-    } else {
-      resultHeadline.textContent = "結果：イーブン！";
-      showCenterMessage({ main: "イーブン！", sub: "同数でした", winner: null });
-    }
-
-    resultBox.classList.add("show");
-    nextBtn.disabled = false;
-  }
-
-  function vote(choice){
-    if(locked) return;
-
-    votes[currentVoter] = choice;
-    renderArenas();
-
-    if(currentVoter < TOTAL_VOTERS) {
-      currentVoter++;
-      updateVoterHint();
-    } else {
-      if(allVoted()) setTimeout(tallyAndShow, 250);
-    }
-  }
-
-  // ✅ 1クリック=1回だけ（pointerup のみ）
-  function bindOnePress(el, fn){
-    el.addEventListener("pointerup", (e) => {
-      e.preventDefault();
-      fn();
-    }, {passive:false});
-  }
-
-  bindOnePress(document.getElementById("choiceA"), () => vote("A"));
-  bindOnePress(document.getElementById("choiceB"), () => vote("B"));
-
-  bindOnePress(resetBtn, () => {
-    locked = false;
-    nextBtn.disabled = true;
-    votes = Array(TOTAL_VOTERS + 1).fill(null);
-    currentVoter = 1;
-    renderArenas();
-    resultBox.classList.remove("show");
-    overlay.classList.remove("show");
-    updateVoterHint();
-  });
-
-  bindOnePress(speakBtn, async () => {
-    try{
-      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-      await audioCtx.resume();
-    } catch {}
-    const q = questions[qIndex];
-    if(q.speakWord) speakEnglishWord(q.speakWord); // 中身は sheep
-  });
-
-  bindOnePress(nextBtn, () => {
-    if(nextBtn.disabled) return;
-    if(qIndex < questions.length - 1){
-      qIndex++;
-      renderQuestion();
-    } else {
-      showCenterMessage({ main:"おしまい！", sub:"全部の問題が終わりました", winner:null });
-      nextBtn.disabled = true;
-    }
-  });
-
-  renderQuestion();
-})();
+render();
 </script>
 </body>
 </html>
