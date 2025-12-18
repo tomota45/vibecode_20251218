@@ -2,571 +2,228 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>みんなの回答（1台疑似）</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>みんなの回答</title>
   <style>
-    :root{
-      --bg1:#fff3b0; --bg2:#b9fbc0; --bg3:#a0c4ff;
-      --panel: rgba(255,255,255,.85);
-      --text:#10203a; --muted:#4b5a73;
-      --a:#2b6cff; --b:#ff3b7a;
-      --shadow: 0 10px 30px rgba(16,32,58,.16);
-      --shadow2: 0 16px 40px rgba(16,32,58,.18);
-      --r:22px;
-    }
-    *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
-      color:var(--text);
-      min-height:100svh;
-      padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
-      background:
-        radial-gradient(900px 700px at 10% 10%, var(--bg3) 0%, rgba(160,196,255,0) 60%),
-        radial-gradient(900px 700px at 90% 0%, var(--bg2) 0%, rgba(185,251,192,0) 60%),
-        radial-gradient(900px 700px at 50% 110%, var(--bg1) 0%, rgba(255,243,176,0) 60%),
-        linear-gradient(180deg, #fff 0%, #f7fbff 100%);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+      background: linear-gradient(180deg,#e0f2ff,#fff);
+      color:#10203a;
+      padding:16px;
     }
-    .wrap{ max-width: 860px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
-    header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
-    .title{ font-size:22px; font-weight:1000; margin:0; letter-spacing:.2px; }
+    .wrap{ max-width:820px; margin:0 auto; }
+    h1{ margin:0 0 8px; font-size:22px; }
     .pill{
-      background: rgba(255,255,255,.75);
-      border: 2px solid rgba(16,32,58,.10);
-      padding: 8px 12px; border-radius:999px;
-      font-size:12px; color:var(--muted); white-space:nowrap;
-      box-shadow: var(--shadow);
-      align-self:flex-start;
+      display:inline-block;
+      padding:6px 12px;
+      border-radius:999px;
+      background:#fff;
+      box-shadow:0 4px 10px rgba(0,0,0,.15);
+      font-size:12px;
+      margin-bottom:12px;
     }
     .card{
-      background: var(--panel);
-      border: 2px solid rgba(16,32,58,.10);
-      border-radius: var(--r);
-      box-shadow: var(--shadow2);
-      overflow:hidden;
-      backdrop-filter: blur(8px);
+      background:#fff;
+      border-radius:20px;
+      padding:16px;
+      box-shadow:0 12px 30px rgba(0,0,0,.18);
     }
-    .card-inner{ padding:14px; }
-    .qrow{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
-    .qtext{ font-size:19px; font-weight:1000; margin:0; white-space:pre-line; line-height:1.25; }
-    .actions{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-
-    button{
-      border:0; border-radius: 16px;
-      padding: 12px 14px;
-      font-weight:1000; color:var(--text);
-      background: rgba(255,255,255,.92);
-      border: 2px solid rgba(16,32,58,.12);
-      box-shadow: 0 10px 18px rgba(16,32,58,.14);
-      cursor:pointer;
-      transition: transform .06s ease, filter .2s ease;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-      user-select:none;
+    .question{
+      font-size:18px;
+      font-weight:800;
+      white-space:pre-line;
     }
-    button:active{ transform: translateY(1px) scale(.99); }
-    button.small{ padding:10px 12px; font-size:13px; border-radius:14px; }
-    button.primary{
-      color:#fff;
-      background: linear-gradient(180deg, rgba(43,108,255,1), rgba(67,56,202,1));
-      border-color: rgba(16,32,58,.08);
-      box-shadow: 0 14px 26px rgba(43,108,255,.25);
+    .dialogue{
+      margin-top:10px;
+      padding:12px;
+      background:#f3f7ff;
+      border-radius:14px;
+      font-size:14px;
+      line-height:1.5;
     }
-    button.ghost{ background: rgba(255,255,255,.60); }
-
-    .grid{ display:grid; grid-template-columns: 1fr; gap:12px; }
-    @media (min-width: 640px){ .grid{ grid-template-columns: 1fr 1fr; } }
-
-    .choiceBtn{
-      width:100%;
-      text-align:left;
-      border-radius: var(--r);
-      border: 2px solid rgba(16,32,58,.10);
-      background: rgba(255,255,255,.78);
-      padding:0;
-      overflow:hidden;
-      min-height: 190px;
-      box-shadow: var(--shadow);
-    }
-    .choiceBtn:active{ transform: translateY(1px); }
-    .choiceBtn:focus-visible{ outline: 4px solid rgba(43,108,255,.35); outline-offset: 3px; }
-
-    .head{ display:flex; align-items:center; justify-content:space-between; padding: 12px 12px 8px; gap:10px; }
-    .badge{
-      display:inline-flex; align-items:center; gap:8px;
-      font-weight:1100; font-size:14px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: rgba(16,32,58,.06);
-      border: 2px solid rgba(16,32,58,.08);
-    }
-    .dot{ width:10px; height:10px; border-radius:50%; background: rgba(16,32,58,.35); box-shadow: 0 0 0 6px rgba(16,32,58,.06); }
-    .badge.a .dot{ background: var(--a); box-shadow: 0 0 0 6px rgba(43,108,255,.16); }
-    .badge.b .dot{ background: var(--b); box-shadow: 0 0 0 6px rgba(255,59,122,.16); }
-    .label{ font-size:17px; font-weight:1100; padding-right: 10px; }
-
-    .arena{
-      display:flex; gap:10px;
-      padding: 10px 12px 14px;
-      flex-wrap:wrap;
-      align-content:flex-start;
-      min-height: 120px;
-    }
-
-    .person{
-      width:56px; height:56px;
-      border-radius: 20px;
+    .choices{
       display:grid;
-      place-items:center;
-      border: 2px solid rgba(16,32,58,.10);
-      background: rgba(255,255,255,.92);
-      box-shadow: 0 12px 18px rgba(16,32,58,.14);
-      position:relative;
-      user-select:none;
+      grid-template-columns:1fr;
+      gap:12px;
+      margin-top:16px;
     }
-    .person.a{ border-color: rgba(43,108,255,.30); background: rgba(43,108,255,.10); }
-    .person.b{ border-color: rgba(255,59,122,.30); background: rgba(255,59,122,.10); }
-    .person svg{ width:36px; height:36px; }
-    .person .num{
-      position:absolute;
-      right:-6px; top:-6px;
-      width:24px; height:24px;
-      border-radius: 999px;
-      display:grid; place-items:center;
-      font-size:12px; font-weight:1100;
-      color:#fff;
-      background: linear-gradient(180deg, #111827, #0b1220);
-      border: 2px solid rgba(255,255,255,.85);
-      box-shadow: 0 12px 18px rgba(16,32,58,.20);
+    @media(min-width:600px){
+      .choices{ grid-template-columns:1fr 1fr; }
     }
-
-    .divider{ height:1px; background: rgba(16,32,58,.10); margin: 12px 0; }
-
-    .result{
-      display:none;
-      margin-top: 12px;
-      padding: 12px;
-      border-radius: var(--r);
-      border: 2px solid rgba(16,32,58,.10);
-      background: rgba(255,255,255,.80);
-      box-shadow: var(--shadow);
-    }
-    .result.show{ display:block; }
-    .result .big{ font-size: 22px; font-weight: 1100; margin:0 0 6px; }
-    .result .row{ display:flex; justify-content:space-between; gap:10px; color:var(--muted); font-weight:1000; }
-
-    .progressHint{ color: var(--muted); font-size: 12px; font-weight: 1000; padding: 0 0 2px; }
-    .progressHint b{ color: var(--text); }
-
-    /* ====== 派手オーバーレイ（中央・3秒） ====== */
-    .overlay{
-      position: fixed; inset: 0;
-      display:none; align-items:center; justify-content:center;
-      z-index: 50;
-      background: radial-gradient(600px 600px at 50% 50%, rgba(255,255,255,.55), rgba(0,0,0,.15));
-      backdrop-filter: blur(2px);
-    }
-    .overlay.show{ display:flex; }
-
-    .pop{
-      position:relative;
-      width: min(640px, calc(100vw - 32px));
-      border-radius: 28px;
-      padding: 22px 18px 18px;
+    .choice{
+      padding:18px;
+      border-radius:18px;
+      font-size:17px;
+      font-weight:800;
+      background:#fff;
+      border:3px solid #dbe5ff;
+      cursor:pointer;
       text-align:center;
-      color: #0b1220;
-      background:
-        radial-gradient(800px 200px at 50% 0%, rgba(255,255,255,.75), rgba(255,255,255,0) 60%),
-        linear-gradient(90deg, rgba(48,209,88,.98), rgba(255,214,10,.98), rgba(255,105,180,.98));
-      box-shadow: 0 30px 80px rgba(16,32,58,.35);
-      border: 3px solid rgba(255,255,255,.75);
-      transform: scale(.85);
-      opacity: 0;
-      animation: popIn .18s ease-out forwards;
     }
-    @keyframes popIn{ to { transform: scale(1); opacity: 1; } }
-
-    .sparkle{
-      position:absolute; inset:-30px; pointer-events:none;
-      background:
-        radial-gradient(6px 6px at 10% 30%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%),
-        radial-gradient(7px 7px at 25% 70%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%),
-        radial-gradient(5px 5px at 55% 20%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%),
-        radial-gradient(7px 7px at 75% 65%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%),
-        radial-gradient(6px 6px at 90% 35%, rgba(255,255,255,.95) 0%, rgba(255,255,255,0) 70%);
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
-      animation: twinkle 0.7s linear infinite;
+    .choice:active{ transform:scale(.98); }
+    .arena{
+      margin-top:10px;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:center;
     }
-    @keyframes twinkle{
-      0%{ opacity:.55; transform: rotate(0deg); }
-      50%{ opacity:1; transform: rotate(6deg); }
-      100%{ opacity:.55; transform: rotate(12deg); }
-    }
-
-    .popMain{
-      font-size: 34px;
-      font-weight: 1200;
-      letter-spacing:.2px;
-      text-shadow: 0 3px 0 rgba(255,255,255,.55);
-      animation: wiggle .45s ease-in-out infinite;
-      user-select:none;
-    }
-    @keyframes wiggle{
-      0%,100%{ transform: rotate(-1deg); }
-      50%{ transform: rotate(1deg); }
-    }
-
-    /* どっちが多いか分かる大バッジ */
-    .winnerBadge{
-      display:inline-flex;
+    .person{
+      width:44px;height:44px;
+      border-radius:14px;
+      display:flex;
       align-items:center;
       justify-content:center;
-      gap:10px;
-      margin: 12px auto 0;
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-weight: 1200;
-      color: #fff;
-      box-shadow: 0 18px 30px rgba(16,32,58,.25);
-      border: 3px solid rgba(255,255,255,.85);
-      transform: scale(1);
-      animation: thump .6s ease-in-out infinite;
+      background:#e6f0ff;
+      font-weight:900;
     }
-    @keyframes thump{
-      0%,100%{ transform: scale(1); }
-      50%{ transform: scale(1.04); }
+    .overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,.25);
     }
-    .winnerBadge.a{ background: linear-gradient(180deg, var(--a), #4338ca); }
-    .winnerBadge.b{ background: linear-gradient(180deg, var(--b), #ff7a00); }
-    .winnerBadge .bigLetter{ font-size: 26px; line-height:1; }
-
-    .popSub{
-      margin-top: 10px;
-      font-size: 16px;
-      font-weight: 1100;
-      color: rgba(11,18,32,.78);
+    .overlay.show{ display:flex; }
+    .pop{
+      background:linear-gradient(90deg,#6ee7b7,#fde68a,#fca5a5);
+      padding:28px 32px;
+      border-radius:28px;
+      text-align:center;
+      font-size:30px;
+      font-weight:1000;
+      box-shadow:0 30px 80px rgba(0,0,0,.35);
+      animation:pop .2s ease-out;
     }
+    @keyframes pop{ from{transform:scale(.8)} to{transform:scale(1)} }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <header>
-      <h1 class="title">みんなの回答</h1>
-      <div class="pill" id="statusPill">問題 1 / 4</div>
-    </header>
+<div class="wrap">
+  <h1>みんなの回答</h1>
+  <div class="pill" id="status">問題 1 / 4</div>
 
-    <section class="card">
-      <div class="card-inner">
-        <div class="qrow">
-          <div>
-            <div class="progressHint" id="voterHint">いま：<b>1人目</b></div>
-            <p class="qtext" id="questionText">問題</p>
-          </div>
-          <div class="actions">
-            <button class="small ghost" id="resetBtn" type="button">リセット</button>
-            <button class="small" id="speakBtn" type="button" style="display:none;">音声読み上げ</button>
-            <button class="small primary" id="nextBtn" type="button" disabled>次へ</button>
-          </div>
-        </div>
+  <div class="card">
+    <div class="question" id="questionText"></div>
+    <div class="dialogue" id="dialogueBox" style="display:none;"></div>
 
-        <div class="divider"></div>
-
-        <div class="grid">
-          <button class="choiceBtn" id="choiceA" type="button" aria-label="Aを選ぶ">
-            <div class="head">
-              <div class="badge a"><span class="dot"></span><span>A</span></div>
-              <div class="label" id="labelA">A</div>
-            </div>
-            <div class="arena" id="arenaA"></div>
-          </button>
-
-          <button class="choiceBtn" id="choiceB" type="button" aria-label="Bを選ぶ">
-            <div class="head">
-              <div class="badge b"><span class="dot"></span><span>B</span></div>
-              <div class="label" id="labelB">B</div>
-            </div>
-            <div class="arena" id="arenaB"></div>
-          </button>
-        </div>
-
-        <div class="result" id="resultBox">
-          <p class="big" id="resultHeadline">結果</p>
-          <div class="row">
-            <span id="resultA">A: 0%</span>
-            <span id="resultB">B: 0%</span>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <!-- 派手：中央に3秒 -->
-  <div class="overlay" id="overlay" aria-hidden="true">
-    <div class="pop" role="status" aria-live="polite">
-      <div class="sparkle"></div>
-      <div class="popMain" id="overlayMain">こっちが多い！</div>
-
-      <!-- 勝った側を大きく -->
-      <div id="winnerBadge" class="winnerBadge a" style="display:none;">
-        <span class="bigLetter" id="winnerLetter">A</span>
-        <span id="winnerLabel">（ラベル）</span>
-      </div>
-
-      <div class="popSub" id="overlaySub">Aが多数</div>
+    <div class="choices">
+      <div class="choice" id="btnA"></div>
+      <div class="choice" id="btnB"></div>
     </div>
+
+    <div class="arena" id="arena"></div>
   </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="pop" id="overlayText">こっちが多い！</div>
+</div>
 
 <script>
-(() => {
 const questions = [
-  { text: '問題１\n“He is running.”\nどっちの意味？', a: '彼は走っている', b: '彼は走りたい' },
-  { text: '問題２\nどっちが自然かな？', a: 'I like apple.', b: 'I like apples.' },
-  { text: '問題３\n今聞こえたのはどっち？', a: 'ship', b: 'sheep', speakWord: 'sheep' },
-　{
-  text: '問題４\n（英語の会話を聞いて）\nこのあと、なにをすると思う？',
-  a: '学校に行く',
-  b: '家に帰る',
-  dialogue: [
-    'Mom: Hurry up!',
-    "It's time for school.",
-    'Boy: OK!'
-  ]
-　},
+  {
+    text: '問題１\n“He is running.”\nどっちの意味？',
+    a: '彼は走っている',
+    b: '彼は走りたい'
+  },
+  {
+    text: '問題２\nどっちが自然かな？',
+    a: 'I like apple.',
+    b: 'I like apples.'
+  },
+  {
+    text: '問題３\n今聞こえたのはどっち？',
+    a: 'ship',
+    b: 'sheep'
+  },
+  {
+    text: '問題４\n（英語の会話を見て）\nこのあと、なにをすると思う？',
+    a: '学校に行く',
+    b: '家に帰る',
+    dialogue: [
+      'Mom: Hurry up!',
+      'It’s time for school.',
+      'Boy: OK!'
+    ]
+  }
 ];
 
-  const TOTAL_VOTERS = 4;
-  let qIndex = 0;
-  let votes = Array(TOTAL_VOTERS + 1).fill(null);
-  let currentVoter = 1;
-  let locked = false;
+const TOTAL = 4;
+let q = 0;
+let count = 0;
+let votes = [];
 
-  const statusPill = document.getElementById("statusPill");
-  const questionText = document.getElementById("questionText");
-  const labelA = document.getElementById("labelA");
-  const labelB = document.getElementById("labelB");
-  const arenaA = document.getElementById("arenaA");
-  const arenaB = document.getElementById("arenaB");
-  const resultBox = document.getElementById("resultBox");
-  const resultHeadline = document.getElementById("resultHeadline");
-  const resultA = document.getElementById("resultA");
-  const resultB = document.getElementById("resultB");
-  const nextBtn = document.getElementById("nextBtn");
-  const resetBtn = document.getElementById("resetBtn");
-  const speakBtn = document.getElementById("speakBtn");
-  const voterHint = document.getElementById("voterHint");
+const qText = document.getElementById('questionText');
+const dBox = document.getElementById('dialogueBox');
+const btnA = document.getElementById('btnA');
+const btnB = document.getElementById('btnB');
+const arena = document.getElementById('arena');
+const overlay = document.getElementById('overlay');
+const overlayText = document.getElementById('overlayText');
+const status = document.getElementById('status');
 
-  const overlay = document.getElementById("overlay");
-  const overlayMain = document.getElementById("overlayMain");
-  const overlaySub = document.getElementById("overlaySub");
-  const winnerBadge = document.getElementById("winnerBadge");
-  const winnerLetter = document.getElementById("winnerLetter");
-  const winnerLabel = document.getElementById("winnerLabel");
-  let overlayTimer = null;
+function render(){
+  const qu = questions[q];
+  status.textContent = `問題 ${q+1} / ${questions.length}`;
+  qText.textContent = qu.text;
+  btnA.textContent = 'A：' + qu.a;
+  btnB.textContent = 'B：' + qu.b;
+  arena.innerHTML = '';
+  votes = [];
+  count = 0;
 
-  let audioCtx = null;
-
-  function beepDon() {
-    try{
-      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-      const t0 = audioCtx.currentTime;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(220, t0);
-      osc.frequency.exponentialRampToValueAtTime(110, t0 + 0.14);
-      gain.gain.setValueAtTime(0.0001, t0);
-      gain.gain.exponentialRampToValueAtTime(0.8, t0 + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.22);
-      osc.connect(gain).connect(audioCtx.destination);
-      osc.start(t0);
-      osc.stop(t0 + 0.24);
-    } catch(e){}
+  if(qu.dialogue){
+    dBox.style.display = '';
+    dBox.innerHTML = qu.dialogue.join('<br>');
+  }else{
+    dBox.style.display = 'none';
   }
+}
 
-  function speakEnglishWord(word){
-    if (!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const ut = new SpeechSynthesisUtterance(word);
-    ut.lang = "en-US";
-    ut.rate = 0.95;
-    ut.pitch = 1.0;
-    window.speechSynthesis.speak(ut);
+function vote(choice){
+  if(count>=TOTAL) return;
+  count++;
+  votes.push(choice);
+  const p = document.createElement('div');
+  p.className = 'person';
+  p.textContent = count;
+  arena.appendChild(p);
+
+  if(count===TOTAL){
+    setTimeout(showResult,300);
   }
+}
 
-  function faceSVG() {
-    return `
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="22" cy="26" r="4" fill="rgba(16,32,58,.95)"></circle>
-        <circle cx="42" cy="26" r="4" fill="rgba(16,32,58,.95)"></circle>
-        <path d="M22 40c5 6 15 6 20 0" fill="none" stroke="rgba(16,32,58,.95)" stroke-width="5" stroke-linecap="round"></path>
-      </svg>
-    `;
+function showResult(){
+  const a = votes.filter(v=>v==='A').length;
+  const b = votes.filter(v=>v==='B').length;
+
+  if(a>b){
+    overlayText.textContent = 'A が多い！';
+  }else if(b>a){
+    overlayText.textContent = 'B が多い！';
+  }else{
+    overlayText.textContent = 'イーブン！';
   }
+  overlay.classList.add('show');
 
-  function updateVoterHint(){
-    voterHint.innerHTML = locked ? `投票完了` : `いま：<b>${currentVoter}人目</b>`;
-  }
-
-  function showCenterMessage({main, sub, winner}) {
-    overlayMain.textContent = main;
-    overlaySub.textContent = sub;
-
-    if (winner === "A" || winner === "B") {
-      const q = questions[qIndex];
-      winnerBadge.style.display = "";
-      winnerBadge.className = "winnerBadge " + (winner === "A" ? "a" : "b");
-      winnerLetter.textContent = winner;
-      winnerLabel.textContent = winner === "A" ? `（${q.a}）` : `（${q.b}）`;
-    } else {
-      winnerBadge.style.display = "none";
+  setTimeout(()=>{
+    overlay.classList.remove('show');
+    q++;
+    if(q<questions.length){
+      render();
     }
+  },3000);
+}
 
-    overlay.classList.add("show");
-    if(overlayTimer) clearTimeout(overlayTimer);
-    overlayTimer = setTimeout(() => overlay.classList.remove("show"), 3000); // ← 3秒表示
-  }
+btnA.onclick = ()=>vote('A');
+btnB.onclick = ()=>vote('B');
 
-  function renderQuestion(){
-    const q = questions[qIndex];
-    statusPill.textContent = `問題 ${qIndex + 1} / ${questions.length}`;
-    questionText.textContent = q.text;
-    labelA.textContent = q.a;
-    labelB.textContent = q.b;
-
-    speakBtn.style.display = q.speakWord ? "" : "none";
-    speakBtn.textContent = "音声読み上げ";
-
-    votes = Array(TOTAL_VOTERS + 1).fill(null);
-    currentVoter = 1;
-    locked = false;
-
-    nextBtn.disabled = true;
-    resultBox.classList.remove("show");
-    arenaA.innerHTML = "";
-    arenaB.innerHTML = "";
-    overlay.classList.remove("show");
-    updateVoterHint();
-  }
-
-  function renderArenas(){
-    arenaA.innerHTML = "";
-    arenaB.innerHTML = "";
-    for(let v=1; v<=TOTAL_VOTERS; v++){
-      const choice = votes[v];
-      if(!choice) continue;
-      const el = document.createElement("div");
-      el.className = "person " + (choice === "A" ? "a" : "b");
-      el.innerHTML = faceSVG() + `<div class="num">${v}</div>`;
-      (choice === "A" ? arenaA : arenaB).appendChild(el);
-    }
-  }
-
-  function allVoted(){
-    for(let v=1; v<=TOTAL_VOTERS; v++){
-      if(!votes[v]) return false;
-    }
-    return true;
-  }
-
-  function tallyAndShow(){
-    locked = true;
-    updateVoterHint();
-    beepDon();
-
-    const aCount = votes.filter(x => x === "A").length;
-    const bCount = votes.filter(x => x === "B").length;
-    const aPct = Math.round((aCount / TOTAL_VOTERS) * 100);
-    const bPct = 100 - aPct;
-
-    resultA.textContent = `A: ${aPct}%（${aCount}人）`;
-    resultB.textContent = `B: ${bPct}%（${bCount}人）`;
-
-    if (aCount > bCount){
-      resultHeadline.textContent = "結果：A が多い！";
-      showCenterMessage({
-        main: "こっちが多い！",
-        sub: `Aが多数（${aCount}人）`,
-        winner: "A"
-      });
-    } else if (bCount > aCount){
-      resultHeadline.textContent = "結果：B が多い！";
-      showCenterMessage({
-        main: "こっちが多い！",
-        sub: `Bが多数（${bCount}人）`,
-        winner: "B"
-      });
-    } else {
-      resultHeadline.textContent = "結果：イーブン！";
-      showCenterMessage({
-        main: "イーブン！",
-        sub: "同数でした",
-        winner: null
-      });
-    }
-
-    resultBox.classList.add("show");
-    nextBtn.disabled = false;
-  }
-
-  function vote(choice){
-    if(locked) return;
-
-    votes[currentVoter] = choice;
-    renderArenas();
-
-    if(currentVoter < TOTAL_VOTERS) {
-      currentVoter++;
-      updateVoterHint();
-    } else {
-      if(allVoted()) setTimeout(tallyAndShow, 250);
-    }
-  }
-
-  // ★重要：1回の操作で1回だけ発火させる（clickは使わない）
-  function bindOnePress(el, fn){
-    el.addEventListener("pointerup", (e) => {
-      e.preventDefault();
-      fn();
-    }, {passive:false});
-  }
-
-  bindOnePress(document.getElementById("choiceA"), () => vote("A"));
-  bindOnePress(document.getElementById("choiceB"), () => vote("B"));
-
-  bindOnePress(resetBtn, () => {
-    locked = false;
-    nextBtn.disabled = true;
-    votes = Array(TOTAL_VOTERS + 1).fill(null);
-    currentVoter = 1;
-    renderArenas();
-    resultBox.classList.remove("show");
-    overlay.classList.remove("show");
-    updateVoterHint();
-  });
-
-  bindOnePress(speakBtn, async () => {
-    try{
-      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-      await audioCtx.resume();
-    } catch {}
-    const q = questions[qIndex];
-    if(q.speakWord) speakEnglishWord(q.speakWord);
-  });
-
-  bindOnePress(nextBtn, () => {
-    if(nextBtn.disabled) return;
-    if(qIndex < questions.length - 1){
-      qIndex++;
-      renderQuestion();
-    } else {
-      showCenterMessage({ main:"おしまい！", sub:"全部の問題が終わりました", winner:null });
-      nextBtn.disabled = true;
-    }
-  });
-
-  renderQuestion();
-})();
+render();
 </script>
 </body>
 </html>
