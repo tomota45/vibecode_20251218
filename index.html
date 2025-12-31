@@ -6,6 +6,7 @@
   <title>みんなの回答（1台疑似）</title>
   <style>
     :root{
+      /* 明るい子供向け配色 */
       --bg1:#fff3b0;
       --bg2:#b9fbc0;
       --bg3:#a0c4ff;
@@ -25,7 +26,7 @@
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
       color:var(--text);
       min-height:100svh;
-      padding:16px;
+      padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
       background:
         radial-gradient(900px 700px at 10% 10%, var(--bg3) 0%, rgba(160,196,255,0) 60%),
         radial-gradient(900px 700px at 90% 0%, var(--bg2) 0%, rgba(185,251,192,0) 60%),
@@ -33,109 +34,176 @@
         linear-gradient(180deg, #fff 0%, #f7fbff 100%);
     }
 
-    .wrap{ max-width:860px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
+    .wrap{ max-width: 860px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
 
-    header{ display:flex; justify-content:space-between; gap:12px; }
+    header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
     .title{ font-size:22px; font-weight:1000; margin:0; }
-
     .pill{
       background: rgba(255,255,255,.75);
-      border:2px solid rgba(16,32,58,.10);
-      padding:8px 12px;
+      border: 2px solid rgba(16,32,58,.10);
+      padding: 8px 12px;
       border-radius:999px;
       font-size:12px;
       color:var(--muted);
-      box-shadow: 0 10px 30px rgba(16,32,58,.16);
+      box-shadow: var(--shadow);
+      align-self:flex-start;
       white-space:nowrap;
     }
 
     .card{
       background: var(--panel);
-      border:2px solid rgba(16,32,58,.10);
-      border-radius:var(--r);
+      border: 2px solid rgba(16,32,58,.10);
+      border-radius: var(--r);
       box-shadow: var(--shadow2);
+      overflow:hidden;
+      backdrop-filter: blur(8px);
     }
     .card-inner{ padding:14px; }
+
+    .qrow{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
 
     .qtext{
       font-size:19px;
       font-weight:1000;
-      white-space:pre-line;
-      line-height:1.3;
       margin:0;
+      white-space:pre-line;
+      line-height:1.25;
     }
 
+    /* 音声ボタン（問題文直下） */
     .audioInline{
-      margin-top:6px;
+      margin-top: 6px;
       display:inline-flex;
       align-items:center;
       gap:8px;
-      font-weight:900;
     }
+    .audioInline svg{ width:18px; height:18px; }
 
+    /* 会話文（問題文直下） */
     .dialog{
-      margin-top:8px;
-      padding:10px 12px;
-      border-radius:16px;
-      background: rgba(255,255,255,.7);
-      border:2px dashed rgba(16,32,58,.18);
-      font-weight:900;
-      white-space:pre-line;
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.70);
+      border: 2px dashed rgba(16,32,58,.18);
+      font-weight: 900;
+      white-space: pre-line;
+      line-height: 1.35;
     }
 
-    .grid{
-      display:grid;
-      grid-template-columns:1fr;
+    .progress{
+      display:flex;
       gap:12px;
-      margin-top:12px;
+      align-items:center;
+      margin-top:6px;
+      font-size:13px;
+      font-weight:1100;
+      color:var(--muted);
     }
-    @media (min-width:640px){
-      .grid{ grid-template-columns:1fr 1fr; }
-    }
+    .progress b{ color:var(--text); }
 
+    .actions{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
+    button{
+      border:0;
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-weight:1000;
+      color:var(--text);
+      background: rgba(255,255,255,.92);
+      border: 2px solid rgba(16,32,58,.12);
+      box-shadow: 0 10px 18px rgba(16,32,58,.14);
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      user-select:none;
+      transition: transform .06s ease;
+    }
+    button:active{ transform: translateY(1px) scale(.99); }
+    button.small{ padding:10px 12px; font-size:13px; border-radius:14px; }
+    button.ghost{ background: rgba(255,255,255,.60); }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .divider{ height:1px; background: rgba(16,32,58,.10); margin: 12px 0; }
+
+    .grid{ display:grid; grid-template-columns: 1fr; gap:12px; }
+    @media (min-width: 640px){ .grid{ grid-template-columns: 1fr 1fr; } }
+
+    /* 大きく押しやすい A/B */
     .choiceBtn{
       width:100%;
-      border-radius:var(--r);
-      border:3px solid rgba(16,32,58,.10);
+      text-align:left;
+      border-radius: var(--r);
+      border: 3px solid rgba(16,32,58,.10);
       background: rgba(255,255,255,.90);
       padding:0;
-      min-height:240px;
-      box-shadow:0 16px 32px rgba(16,32,58,.14);
-      cursor:pointer;
+      overflow:hidden;
+      min-height: 240px;
+      box-shadow: 0 16px 32px rgba(16,32,58,.14);
     }
+    .choiceBtn:active{ transform: translateY(1px); }
+    .choiceBtn:disabled{ opacity:.80; cursor:not-allowed; }
 
+    /* A/B + 選択肢：縦横センター＆大きめ */
     .head{
       display:flex;
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      min-height:140px;
+      padding: 14px 12px 10px;
       gap:10px;
+      min-height: 130px;
       text-align:center;
     }
-
     .head > span:first-child{
-      font-size:34px;
-      font-weight:1200;
-      line-height:1;
+      font-size: clamp(26px, 3.4vw, 38px); /* A/B 大きく */
+      font-weight: 1200;
+      line-height: 1;
     }
-
     .label{
-      font-size:30px;
+      font-size: clamp(24px, 3.2vw, 34px); /* 選択肢 大きく */
       font-weight:1200;
       text-align:center;
       line-height:1.25;
+      max-width: 100%;
+      word-break: break-word;
     }
 
     .arena{
       display:flex;
       gap:10px;
-      padding:10px;
-      justify-content:center;
-      min-height:90px;
+      padding: 10px 12px 14px;
+      flex-wrap:wrap;
+      align-content:flex-start;
+      min-height: 110px;
     }
+    .person{
+      width:56px; height:56px;
+      border-radius: 20px;
+      display:grid; place-items:center;
+      border: 2px solid rgba(16,32,58,.10);
+      background: rgba(255,255,255,.92);
+      box-shadow: 0 12px 18px rgba(16,32,58,.14);
+      position:relative;
+      font-weight:1100;
+    }
+    .person.a{ border-color: rgba(43,108,255,.30); background: rgba(43,108,255,.10); }
+    .person.b{ border-color: rgba(255,59,122,.30); background: rgba(255,59,122,.10); }
+    .person .num{
+      position:absolute;
+      right:-6px; top:-6px;
+      width:24px; height:24px;
+      border-radius: 999px;
+      display:grid; place-items:center;
+      font-size:12px; font-weight:1100;
+      color:#fff;
+      background: linear-gradient(180deg, #111827, #0b1220);
+      border: 2px solid rgba(255,255,255,.85);
+      box-shadow: 0 12px 18px rgba(16,32,58,.20);
+    }
+    .person svg{ width:36px; height:36px; }
 
-    /* ===== 結果オーバーレイ ===== */
+    /* 派手中央表示（3秒） */
     .overlay{
       position: fixed;
       inset: 0;
@@ -147,148 +215,392 @@
       backdrop-filter: blur(2px);
     }
     .overlay.show{ display:flex; }
-
     .pop{
       position:relative;
       width: min(680px, calc(100vw - 32px));
       border-radius: 28px;
       padding: 22px 18px 18px;
       text-align:center;
+      color: #0b1220;
       background:
         radial-gradient(800px 200px at 50% 0%, rgba(255,255,255,.75), rgba(255,255,255,0) 60%),
         linear-gradient(90deg, rgba(48,209,88,.98), rgba(255,214,10,.98), rgba(255,105,180,.98));
       box-shadow: 0 30px 80px rgba(16,32,58,.35);
       border: 3px solid rgba(255,255,255,.75);
+      transform: scale(.85);
+      opacity: 0;
       animation: popIn .18s ease-out forwards;
     }
-
-    @keyframes popIn{
-      from{ transform:scale(.85); opacity:0; }
-      to{ transform:scale(1); opacity:1; }
-    }
-
+    @keyframes popIn{ to { transform: scale(1); opacity: 1; } }
     .popMain{
-      font-size:36px;
-      font-weight:1200;
+      font-size: 36px;
+      font-weight: 1200;
+      letter-spacing:.2px;
       text-shadow: 0 3px 0 rgba(255,255,255,.55);
+      user-select:none;
     }
-
     .winnerBadge{
-      margin-top:12px;
-      padding:10px 16px;
-      border-radius:999px;
-      font-size:20px;
-      font-weight:1200;
-      color:#fff;
-      display:inline-block;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      margin: 12px auto 0;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 1200;
+      color: #fff;
+      box-shadow: 0 18px 30px rgba(16,32,58,.25);
+      border: 3px solid rgba(255,255,255,.85);
     }
-    .winnerBadge.a{ background:#2b6cff; }
-    .winnerBadge.b{ background:#ff3b7a; }
+    .winnerBadge.a{ background: linear-gradient(180deg, rgba(43,108,255,1), rgba(67,56,202,1)); }
+    .winnerBadge.b{ background: linear-gradient(180deg, rgba(255,59,122,1), rgba(190,24,93,1)); }
 
-    /* ★追加：話し合いメッセージ */
-    .discussionMsg{
-      margin-top:18px;
-      font-size:26px;
-      font-weight:1200;
-      color:#0b1220;
-      text-shadow: 0 2px 0 rgba(255,255,255,.6);
+    .closeHint{
+      margin-top: 10px;
+      font-size: 12px;
+      color: rgba(11,18,32,.85);
+      font-weight: 900;
+      user-select:none;
+    }
+
+    /* ★追加：結果ウィンドウ最下部の大きい文言 */
+    .talkMsg{
+      margin-top: 16px;
+      font-size: 28px;
+      font-weight: 1200;
+      color: #0b1220;
+      text-shadow: 0 3px 0 rgba(255,255,255,.55);
+      user-select:none;
+    }
+
+    .sub{
+      font-size: 13px;
+      color: var(--muted);
+      margin: 6px 0 0;
+      font-weight: 900;
+    }
+
+    .note{
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    footer{
+      text-align:center;
+      padding: 6px 0 2px;
+      color: rgba(75,90,115,.85);
+      font-size: 11px;
+      font-weight: 900;
     }
   </style>
 </head>
 
 <body>
-<div class="wrap">
-  <header>
-    <h1 class="title">みんなの回答</h1>
-    <div class="pill">投票者あと <b id="remain">0</b> 人</div>
-  </header>
-
-  <section class="card">
-    <div class="card-inner">
-      <p class="qtext" id="qText"></p>
-      <button class="audioInline" id="audioBtn">🔊 音声（sheep）</button>
-      <div id="dialogWrap" class="dialog" style="display:none;"></div>
-
-      <div class="grid">
-        <button class="choiceBtn" id="btnA">
-          <div class="head"><span>A</span><div class="label" id="labelA"></div></div>
-        </button>
-        <button class="choiceBtn" id="btnB">
-          <div class="head"><span>B</span><div class="label" id="labelB"></div></div>
-        </button>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1 class="title">みんなの回答（1台疑似）</h1>
+        <p class="sub">A/B 投票（先生画面イメージ）</p>
       </div>
-    </div>
-  </section>
-</div>
+      <div class="pill" id="remainPill">投票者あと <b id="remain">0</b> 人</div>
+    </header>
 
-<!-- 結果オーバーレイ -->
-<div class="overlay" id="overlay">
-  <div class="pop">
-    <div class="popMain">結果！</div>
-    <div class="winnerBadge" id="winnerBadge">A が多い！</div>
+    <section class="card">
+      <div class="card-inner">
+        <div class="qrow">
+          <div>
+            <p class="qtext" id="qText"></p>
 
-    <!-- ★追加：一番下のメッセージ -->
-    <div class="discussionMsg">
-      結果について話し合いましょう
+            <!-- 音声ボタン：問題文のすぐ下（問題③のみ表示） -->
+            <button class="small audioInline" id="audioBtn">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M11 5 7.5 8H4v8h3.5L11 19V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M15.5 8.5a4.5 4.5 0 0 1 0 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M18 6a8 8 0 0 1 0 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              音声（sheep）
+            </button>
+
+            <!-- 会話文：問題文のすぐ下（問題④のみ表示） -->
+            <div id="dialogWrap" class="dialog" style="display:none;"></div>
+
+            <div class="progress">
+              <span>問題 <b id="qIndex">1</b> / <b id="qTotal">4</b></span>
+              <span>｜</span>
+              <span>回答済み <b id="answered">0</b></span>
+              <span>/</span>
+              <span>想定 <b id="target">4</b></span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="small ghost" id="prevBtn">← 前</button>
+            <button class="small ghost" id="nextBtn">次 →</button>
+            <button class="small" id="resetBtn">リセット</button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="grid">
+          <button class="choiceBtn" id="btnA">
+            <div class="head">
+              <span style="font-weight:1200;">A</span>
+              <span class="label" id="labelA"></span>
+            </div>
+            <div class="arena" id="arenaA"></div>
+          </button>
+
+          <button class="choiceBtn" id="btnB">
+            <div class="head">
+              <span style="font-weight:1200;">B</span>
+              <span class="label" id="labelB"></span>
+            </div>
+            <div class="arena" id="arenaB"></div>
+          </button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="actions">
+          <span class="note">※投票後に自動で次へは進みません（教室で会話する想定）。</span>
+        </div>
+      </div>
+    </section>
+
+    <footer>ローカルで動く疑似UI（ネット不要）</footer>
+  </div>
+
+  <!-- 結果オーバーレイ（4人集まったときのみ表示） -->
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true">
+    <div class="pop">
+      <div class="popMain" id="popMain">結果！</div>
+      <div class="winnerBadge" id="winnerBadge">A が多い！</div>
+      <div class="closeHint">（3秒で閉じます / クリックでも閉じます）</div>
+
+      <!-- ★追加：一番下に大きな文字 -->
+      <div class="talkMsg">結果について話し合いましょう</div>
     </div>
   </div>
-</div>
 
-<script>
-  const QUESTIONS = [
-    { text:"問題①\n“He is running.” どっちの意味？", a:"彼は走っている", b:"彼は走りたい" },
-    { text:"問題②\nどっちが自然な言い回しかな？", a:"I like apple.", b:"I like apples." },
-    { text:"問題③\n今聞こえたのはどっち？", a:"ship", b:"sheep", audio_word:"sheep" },
-    { text:"問題④\nこのあと、なにをすると思う？", dialog:"Friend: Good morning!\nYou: Good morning!", a:"学校に行く", b:"家に帰る" }
-  ];
+  <script>
+    // ====== 設定 ======
+    const TARGET_VOTERS = 4; // 1問につき4人
 
-  let q = 0;
-  let votes = QUESTIONS.map(()=>({a:0,b:0}));
+    // ====== 問題（ユーザー指定） ======
+    const QUESTIONS = [
+      {
+        text: "問題①\n“He is running.” どっちの意味？",
+        a: "彼は走っている",
+        b: "彼は走りたい",
+      },
+      {
+        text: "問題②\nどっちが自然な言い回しかな？",
+        a: "I like apple.",
+        b: "I like apples.",
+      },
+      {
+        text: "問題③\n今聞こえたのはどっち？",
+        a: "ship",
+        b: "sheep",
+        audio_word: "sheep"
+      },
+      {
+        text: "問題④\nこのあと、なにをすると思う？",
+        dialog: "Friend: Good morning!\nYou: Good morning!",
+        a: "学校に行く",
+        b: "家に帰る",
+      },
+    ];
 
-  const qText = document.getElementById("qText");
-  const labelA = document.getElementById("labelA");
-  const labelB = document.getElementById("labelB");
-  const dialogWrap = document.getElementById("dialogWrap");
-  const audioBtn = document.getElementById("audioBtn");
-  const overlay = document.getElementById("overlay");
-  const winnerBadge = document.getElementById("winnerBadge");
+    // ====== 状態 ======
+    let q = 0;
+    const votes = QUESTIONS.map(() => ({ a: 0, b: 0 }));
 
-  function render(){
-    const item = QUESTIONS[q];
-    qText.textContent = item.text;
-    labelA.textContent = item.a;
-    labelB.textContent = item.b;
-    dialogWrap.style.display = item.dialog ? "block" : "none";
-    dialogWrap.textContent = item.dialog || "";
-    audioBtn.style.display = item.audio_word ? "inline-block" : "none";
-  }
+    // ====== DOM ======
+    const qText = document.getElementById("qText");
+    const qIndex = document.getElementById("qIndex");
+    const qTotal = document.getElementById("qTotal");
+    const labelA = document.getElementById("labelA");
+    const labelB = document.getElementById("labelB");
+    const arenaA = document.getElementById("arenaA");
+    const arenaB = document.getElementById("arenaB");
+    const remain = document.getElementById("remain");
+    const answeredEl = document.getElementById("answered");
+    const targetEl = document.getElementById("target");
 
-  function showResult(){
-    const {a,b} = votes[q];
-    if(a===b){
-      winnerBadge.textContent = "イーブン（50% / 50%）";
-      winnerBadge.className = "winnerBadge";
-    }else if(a>b){
-      winnerBadge.textContent = "A が多い！";
-      winnerBadge.className = "winnerBadge a";
-    }else{
-      winnerBadge.textContent = "B が多い！";
-      winnerBadge.className = "winnerBadge b";
+    const btnA = document.getElementById("btnA");
+    const btnB = document.getElementById("btnB");
+
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    const overlay = document.getElementById("overlay");
+    const popMain = document.getElementById("popMain");
+    const winnerBadge = document.getElementById("winnerBadge");
+
+    const dialogWrap = document.getElementById("dialogWrap");
+    const audioBtn = document.getElementById("audioBtn");
+
+    qTotal.textContent = String(QUESTIONS.length);
+    targetEl.textContent = String(TARGET_VOTERS);
+
+    // ====== ユーティリティ ======
+    function personSVG(){
+      return `
+        <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <path d="M32 33c8.2 0 14.8-6.8 14.8-15.2S40.2 2.6 32 2.6 17.2 9.4 17.2 17.8 23.8 33 32 33Z" fill="currentColor" opacity=".18"/>
+          <path d="M12 60.5c3.1-14.3 12.4-22 20-22h0c7.6 0 16.9 7.7 20 22" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+      `;
     }
-    overlay.classList.add("show");
-    setTimeout(()=>overlay.classList.remove("show"),3000);
-  }
 
-  document.getElementById("btnA").onclick=()=>{votes[q].a++; if(votes[q].a+votes[q].b===4)showResult();}
-  document.getElementById("btnB").onclick=()=>{votes[q].b++; if(votes[q].a+votes[q].b===4)showResult();}
+    function renderPeople(container, count, cls){
+      container.innerHTML = "";
+      for(let i=0;i<count;i++){
+        const d = document.createElement("div");
+        d.className = `person ${cls}`;
+        d.innerHTML = personSVG();
+        container.appendChild(d);
+      }
+      if(count>0){
+        const last = container.lastElementChild;
+        const badge = document.createElement("div");
+        badge.className = "num";
+        badge.textContent = String(count);
+        last.appendChild(badge);
+      }
+    }
 
-  audioBtn.onclick=()=>{
-    const u = new SpeechSynthesisUtterance("sheep");
-    u.lang="en-US";
-    speechSynthesis.speak(u);
-  };
+    function countForCurrentQ(){
+      return votes[q].a + votes[q].b;
+    }
 
-  render();
-</script>
+    function updateHeader(){
+      const answered = countForCurrentQ();
+      answeredEl.textContent = String(answered);
+      const r = Math.max(0, TARGET_VOTERS - answered);
+      remain.textContent = String(r);
+    }
+
+    function showOverlay(winner){
+      const {a,b} = votes[q];
+      const total = a + b;
+      const aPct = total ? Math.round(a/total*100) : 0;
+      const bPct = total ? Math.round(b/total*100) : 0;
+
+      overlay.classList.add("show");
+      popMain.textContent = "結果！";
+
+      // 50% のときはイーブン表示
+      if(a === b){
+        winnerBadge.className = "winnerBadge";
+        winnerBadge.textContent = "イーブン（50% / 50%）";
+      }else if(winner === "a"){
+        winnerBadge.className = "winnerBadge a";
+        winnerBadge.textContent = `A が多い！（${aPct}%）`;
+      }else{
+        winnerBadge.className = "winnerBadge b";
+        winnerBadge.textContent = `B が多い！（${bPct}%）`;
+      }
+
+      const t = setTimeout(()=> overlay.classList.remove("show"), 3000);
+      const close = () => {
+        clearTimeout(t);
+        overlay.classList.remove("show");
+        overlay.removeEventListener("click", close);
+      };
+      overlay.addEventListener("click", close);
+    }
+
+    function render(){
+      const item = QUESTIONS[q];
+      qText.textContent = item.text;
+      qIndex.textContent = String(q + 1);
+
+      labelA.textContent = item.a;
+      labelB.textContent = item.b;
+
+      renderPeople(arenaA, votes[q].a, "a");
+      renderPeople(arenaB, votes[q].b, "b");
+
+      // 会話文：問題④のみ（問題文の直下にある）
+      if(item.dialog){
+        dialogWrap.style.display = "";
+        dialogWrap.textContent = item.dialog;
+      }else{
+        dialogWrap.style.display = "none";
+        dialogWrap.textContent = "";
+      }
+
+      // 音声ボタン：問題③のみ（問題文の直下にある）
+      audioBtn.style.display = item.audio_word ? "inline-flex" : "none";
+
+      prevBtn.disabled = (q === 0);
+      nextBtn.disabled = (q === QUESTIONS.length - 1);
+
+      // 4人集まったらその問題は投票不可にする
+      const answered = countForCurrentQ();
+      const locked = answered >= TARGET_VOTERS;
+      btnA.disabled = locked;
+      btnB.disabled = locked;
+
+      updateHeader();
+    }
+
+    // ====== 投票 ======
+    function vote(side){
+      const answered = countForCurrentQ();
+      if(answered >= TARGET_VOTERS) return;
+
+      votes[q][side] += 1;
+      render();
+
+      // 毎回は出さない。4人目のときだけ結果を出す
+      const nowAnswered = countForCurrentQ();
+      if(nowAnswered === TARGET_VOTERS){
+        const {a,b} = votes[q];
+        const winner = (a === b) ? side : (a > b ? "a" : "b");
+        showOverlay(winner);
+      }
+    }
+
+    btnA.addEventListener("click", ()=> vote("a"));
+    btnB.addEventListener("click", ()=> vote("b"));
+
+    prevBtn.addEventListener("click", ()=> { q = Math.max(0, q - 1); render(); });
+    nextBtn.addEventListener("click", ()=> { q = Math.min(QUESTIONS.length - 1, q + 1); render(); });
+
+    resetBtn.addEventListener("click", ()=> {
+      for(const v of votes){ v.a = 0; v.b = 0; }
+      q = 0;
+      render();
+    });
+
+    // 音声（問題3のみ / Web Speech API）
+    audioBtn.addEventListener("click", ()=> {
+      try{
+        const item = QUESTIONS[q];
+        if(!item.audio_word) return;
+
+        if(!("speechSynthesis" in window)) {
+          alert("このブラウザは音声読み上げに非対応です。");
+          return;
+        }
+        const u = new SpeechSynthesisUtterance(item.audio_word);
+        u.lang = "en-US";
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+      }catch(e){
+        console.error(e);
+        alert("音声の再生でエラーが起きました。");
+      }
+    });
+
+    render();
+  </script>
 </body>
 </html>
