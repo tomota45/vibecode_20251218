@@ -473,12 +473,24 @@
       overlay.classList.add("show");
       popMain.textContent = "結果！";
 
-      winnerBadge.className = "winnerBadge " + (winner === "a" ? "a" : "b");
-      winnerBadge.textContent =
-        (winner === "a" ? `A が多い！（${aPct}%）` : `B が多い！（${bPct}%）`);
+      // ★ 50% のときはイーブン表示
+      if(a === b){
+        winnerBadge.className = "winnerBadge";
+        winnerBadge.textContent = "イーブン（50% / 50%）";
+      }else if(winner === "a"){
+        winnerBadge.className = "winnerBadge a";
+        winnerBadge.textContent = `A が多い！（${aPct}%）`;
+      }else{
+        winnerBadge.className = "winnerBadge b";
+        winnerBadge.textContent = `B が多い！（${bPct}%）`;
+      }
 
       const t = setTimeout(()=> overlay.classList.remove("show"), 3000);
-      const close = () => { clearTimeout(t); overlay.classList.remove("show"); overlay.removeEventListener("click", close); };
+      const close = () => {
+        clearTimeout(t);
+        overlay.classList.remove("show");
+        overlay.removeEventListener("click", close);
+      };
       overlay.addEventListener("click", close);
     }
 
@@ -502,13 +514,13 @@
         dialogWrap.textContent = "";
       }
 
-      // ★問題3だけ音声ボタン表示
+      // 問題3だけ音声ボタン表示
       audioBtn.style.display = item.audio_word ? "inline-flex" : "none";
 
       prevBtn.disabled = (q === 0);
       nextBtn.disabled = (q === QUESTIONS.length - 1);
 
-      // ★4人集まったらその問題は投票不可にする
+      // 4人集まったらその問題は投票不可にする
       const answered = countForCurrentQ();
       const locked = answered >= TARGET_VOTERS;
       btnA.disabled = locked;
@@ -525,7 +537,7 @@
       votes[q][side] += 1;
       render();
 
-      // ★毎回は出さない。4人目のときだけ結果を出す
+      // 毎回は出さない。4人目のときだけ結果を出す
       const nowAnswered = countForCurrentQ();
       if(nowAnswered === TARGET_VOTERS){
         const {a,b} = votes[q];
