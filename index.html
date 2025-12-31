@@ -70,6 +70,27 @@
       line-height:1.25;
     }
 
+    /* 音声ボタン（問題文直下） */
+    .audioInline{
+      margin-top: 6px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .audioInline svg{ width:18px; height:18px; }
+
+    /* 会話文（問題文直下） */
+    .dialog{
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.70);
+      border: 2px dashed rgba(16,32,58,.18);
+      font-weight: 900;
+      white-space: pre-line;
+      line-height: 1.35;
+    }
+
     .progress{
       display:flex;
       gap:12px;
@@ -123,7 +144,7 @@
     .choiceBtn:active{ transform: translateY(1px); }
     .choiceBtn:disabled{ opacity:.80; cursor:not-allowed; }
 
-    /* ★ A/B + 選択肢：縦横センター＆大きめ */
+    /* A/B + 選択肢：縦横センター＆大きめ */
     .head{
       display:flex;
       flex-direction:column;
@@ -135,12 +156,12 @@
       text-align:center;
     }
     .head > span:first-child{
-      font-size: clamp(26px, 3.4vw, 38px);
+      font-size: clamp(26px, 3.4vw, 38px); /* A/B 大きく */
       font-weight: 1200;
       line-height: 1;
     }
     .label{
-      font-size: clamp(24px, 3.2vw, 34px);
+      font-size: clamp(24px, 3.2vw, 34px); /* 選択肢 大きく */
       font-weight:1200;
       text-align:center;
       line-height:1.25;
@@ -256,27 +277,6 @@
       margin: 0;
     }
 
-    /* 小さい会話表示（問題4用） */
-    .dialog{
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 16px;
-      background: rgba(255,255,255,.70);
-      border: 2px dashed rgba(16,32,58,.18);
-      font-weight: 900;
-      white-space: pre-line;
-      line-height: 1.35;
-    }
-
-    /* ★ 音声ボタン（問題文直下用） */
-    .audioInline{
-      margin-top: 6px;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-    }
-    .audioInline svg{ width:18px; height:18px; }
-
     footer{
       text-align:center;
       padding: 6px 0 2px;
@@ -303,7 +303,7 @@
           <div>
             <p class="qtext" id="qText"></p>
 
-            <!-- ★ 音声ボタン：問題文のすぐ下（問題③のみ表示） -->
+            <!-- 音声ボタン：問題文のすぐ下（問題③のみ表示） -->
             <button class="small audioInline" id="audioBtn">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M11 5 7.5 8H4v8h3.5L11 19V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
@@ -312,6 +312,9 @@
               </svg>
               音声（sheep）
             </button>
+
+            <!-- 会話文：問題文のすぐ下（問題④のみ表示） -->
+            <div id="dialogWrap" class="dialog" style="display:none;"></div>
 
             <div class="progress">
               <span>問題 <b id="qIndex">1</b> / <b id="qTotal">4</b></span>
@@ -348,8 +351,6 @@
             <div class="arena" id="arenaB"></div>
           </button>
         </div>
-
-        <div id="dialogWrap" class="dialog" style="display:none;"></div>
 
         <div class="divider"></div>
 
@@ -513,7 +514,7 @@
       renderPeople(arenaA, votes[q].a, "a");
       renderPeople(arenaB, votes[q].b, "b");
 
-      // 問題4などで英文表示
+      // 会話文：問題④のみ（問題文の直下にある）
       if(item.dialog){
         dialogWrap.style.display = "";
         dialogWrap.textContent = item.dialog;
@@ -522,7 +523,7 @@
         dialogWrap.textContent = "";
       }
 
-      // ★ 問題3だけ音声ボタン表示（問題文の直下にある）
+      // 音声ボタン：問題③のみ（問題文の直下にある）
       audioBtn.style.display = item.audio_word ? "inline-flex" : "none";
 
       prevBtn.disabled = (q === 0);
