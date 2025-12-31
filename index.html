@@ -6,7 +6,6 @@
   <title>みんなの回答（1台疑似）</title>
   <style>
     :root{
-      /* 明るい子供向け配色 */
       --bg1:#fff3b0;
       --bg2:#b9fbc0;
       --bg3:#a0c4ff;
@@ -61,7 +60,6 @@
     .card-inner{ padding:14px; }
 
     .qrow{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
-
     .qtext{
       font-size:19px;
       font-weight:1000;
@@ -225,4 +223,333 @@
       box-shadow: 0 18px 30px rgba(16,32,58,.25);
       border: 3px solid rgba(255,255,255,.85);
     }
-    .winnerBadge.a{ background: linear-gradient(180
+    .winnerBadge.a{ background: linear-gradient(180deg, rgba(43,108,255,1), rgba(67,56,202,1)); }
+    .winnerBadge.b{ background: linear-gradient(180deg, rgba(255,59,122,1), rgba(190,24,93,1)); }
+
+    .closeHint{
+      margin-top: 10px;
+      font-size: 12px;
+      color: rgba(11,18,32,.85);
+      font-weight: 900;
+      user-select:none;
+    }
+
+    .sub{
+      font-size: 13px;
+      color: var(--muted);
+      margin: 6px 0 0;
+      font-weight: 900;
+    }
+
+    .note{
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    /* 小さい会話表示（問題4用） */
+    .dialog{
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.70);
+      border: 2px dashed rgba(16,32,58,.18);
+      font-weight: 900;
+      white-space: pre-line;
+      line-height: 1.35;
+    }
+
+    /* 音声ボタン */
+    .audioBtn{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .audioBtn svg{ width:18px; height:18px; }
+
+    footer{
+      text-align:center;
+      padding: 6px 0 2px;
+      color: rgba(75,90,115,.85);
+      font-size: 11px;
+      font-weight: 900;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1 class="title">みんなの回答（1台疑似）</h1>
+        <p class="sub">A/B どっちが自然？ 先生の画面イメージ</p>
+      </div>
+      <div class="pill" id="remainPill">投票者あと <b id="remain">0</b> 人</div>
+    </header>
+
+    <section class="card">
+      <div class="card-inner">
+        <div class="qrow">
+          <div>
+            <p class="qtext" id="qText"></p>
+            <div class="progress">
+              <span>問題 <b id="qIndex">1</b> / <b id="qTotal">4</b></span>
+              <span>｜</span>
+              <span>回答済み <b id="answered">0</b></span>
+              <span>/</span>
+              <span>想定 <b id="target">20</b></span>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="small ghost" id="prevBtn">← 前</button>
+            <button class="small ghost" id="nextBtn">次 →</button>
+            <button class="small" id="resetBtn">リセット</button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="grid">
+          <button class="choiceBtn" id="btnA">
+            <div class="head">
+              <span style="font-weight:1200;">A</span>
+              <span class="label" id="labelA"></span>
+            </div>
+            <div class="arena" id="arenaA"></div>
+          </button>
+
+          <button class="choiceBtn" id="btnB">
+            <div class="head">
+              <span style="font-weight:1200;">B</span>
+              <span class="label" id="labelB"></span>
+            </div>
+            <div class="arena" id="arenaB"></div>
+          </button>
+        </div>
+
+        <div id="dialogWrap" class="dialog" style="display:none;"></div>
+
+        <div class="divider"></div>
+
+        <div class="actions">
+          <button class="small audioBtn" id="audioBtn">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M11 5 7.5 8H4v8h3.5L11 19V5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M15.5 8.5a4.5 4.5 0 0 1 0 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M18 6a8 8 0 0 1 0 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            音声（テスト）
+          </button>
+
+          <span class="note">※投票後に自動で次へは進みません（教室で会話する想定）。</span>
+        </div>
+      </div>
+    </section>
+
+    <footer>ローカルで動く疑似UI（ネット不要）</footer>
+  </div>
+
+  <!-- 結果オーバーレイ -->
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true">
+    <div class="pop">
+      <div class="popMain" id="popMain">結果！</div>
+      <div class="winnerBadge" id="winnerBadge">A が多い！</div>
+      <div class="closeHint">（3秒で閉じます / クリックでも閉じます）</div>
+    </div>
+  </div>
+
+  <script>
+    // ====== 設定 ======
+    const TARGET_VOTERS = 20;
+
+    // 問題（前回の文脈に寄せた例）
+    const QUESTIONS = [
+      {
+        text: "問題①\nWhich do you like?",
+        a: "I like apple.",
+        b: "I like apples.",
+      },
+      {
+        text: "問題②\nWhich sounds natural?",
+        a: "I like apple.",
+        b: "I like apples.",
+      },
+      {
+        text: "問題③\nPick one!",
+        a: "A is better.",
+        b: "B is better.",
+      },
+      {
+        text: "問題④\nこのあと、なにをすると思う？",
+        a: "A：学校に行く",
+        b: "B：家に帰る",
+        dialog: "Mom: Hurry up!\nIt's time for school.\nBoy: OK!"
+      },
+    ];
+
+    // ====== 状態 ======
+    let q = 0;
+    let answered = 0;
+    // 表示用にA/Bへ集める
+    const votes = QUESTIONS.map(() => ({ a: 0, b: 0 }));
+
+    // ====== DOM ======
+    const qText = document.getElementById("qText");
+    const qIndex = document.getElementById("qIndex");
+    const qTotal = document.getElementById("qTotal");
+    const labelA = document.getElementById("labelA");
+    const labelB = document.getElementById("labelB");
+    const arenaA = document.getElementById("arenaA");
+    const arenaB = document.getElementById("arenaB");
+    const remain = document.getElementById("remain");
+    const answeredEl = document.getElementById("answered");
+    const targetEl = document.getElementById("target");
+
+    const btnA = document.getElementById("btnA");
+    const btnB = document.getElementById("btnB");
+
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    const overlay = document.getElementById("overlay");
+    const popMain = document.getElementById("popMain");
+    const winnerBadge = document.getElementById("winnerBadge");
+
+    const dialogWrap = document.getElementById("dialogWrap");
+
+    const audioBtn = document.getElementById("audioBtn");
+
+    qTotal.textContent = String(QUESTIONS.length);
+    targetEl.textContent = String(TARGET_VOTERS);
+
+    // ====== ユーティリティ ======
+    function personSVG(){
+      return `
+        <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <path d="M32 33c8.2 0 14.8-6.8 14.8-15.2S40.2 2.6 32 2.6 17.2 9.4 17.2 17.8 23.8 33 32 33Z" fill="currentColor" opacity=".18"/>
+          <path d="M12 60.5c3.1-14.3 12.4-22 20-22h0c7.6 0 16.9 7.7 20 22" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+      `;
+    }
+
+    function renderPeople(container, count, cls){
+      container.innerHTML = "";
+      for(let i=0;i<count;i++){
+        const d = document.createElement("div");
+        d.className = `person ${cls}`;
+        d.innerHTML = personSVG();
+        container.appendChild(d);
+      }
+      // 右上に人数バッジ（最後の一つにまとめて表示）
+      if(count>0){
+        const last = container.lastElementChild;
+        const badge = document.createElement("div");
+        badge.className = "num";
+        badge.textContent = String(count);
+        last.appendChild(badge);
+      }
+    }
+
+    function updateHeader(){
+      answeredEl.textContent = String(answered);
+      const r = Math.max(0, TARGET_VOTERS - answered);
+      remain.textContent = String(r);
+    }
+
+    function showOverlay(winner){
+      const {a,b} = votes[q];
+      const total = a + b;
+      const aPct = total ? Math.round(a/total*100) : 0;
+      const bPct = total ? Math.round(b/total*100) : 0;
+
+      overlay.classList.add("show");
+      popMain.textContent = "結果！";
+
+      winnerBadge.className = "winnerBadge " + (winner === "a" ? "a" : "b");
+      winnerBadge.textContent =
+        (winner === "a" ? `A が多い！（${aPct}%）` : `B が多い！（${bPct}%）`);
+
+      const t = setTimeout(()=> overlay.classList.remove("show"), 3000);
+      const close = () => { clearTimeout(t); overlay.classList.remove("show"); overlay.removeEventListener("click", close); };
+      overlay.addEventListener("click", close);
+    }
+
+    function render(){
+      const item = QUESTIONS[q];
+      qText.textContent = item.text;
+      qIndex.textContent = String(q + 1);
+
+      labelA.textContent = item.a;
+      labelB.textContent = item.b;
+
+      renderPeople(arenaA, votes[q].a, "a");
+      renderPeople(arenaB, votes[q].b, "b");
+
+      // 問題4だけ会話表示
+      if(item.dialog){
+        dialogWrap.style.display = "";
+        dialogWrap.textContent = item.dialog;
+      }else{
+        dialogWrap.style.display = "none";
+        dialogWrap.textContent = "";
+      }
+
+      prevBtn.disabled = (q === 0);
+      nextBtn.disabled = (q === QUESTIONS.length - 1);
+
+      updateHeader();
+    }
+
+    // ====== 投票 ======
+    function vote(side){
+      if(answered >= TARGET_VOTERS) return;
+
+      votes[q][side] += 1;
+      answered += 1;
+      render();
+
+      // 勝者（同数なら投票した側を勝ちにする）
+      const {a,b} = votes[q];
+      const winner = (a === b) ? side : (a > b ? "a" : "b");
+      showOverlay(winner);
+    }
+
+    btnA.addEventListener("click", ()=> vote("a"));
+    btnB.addEventListener("click", ()=> vote("b"));
+
+    prevBtn.addEventListener("click", ()=> { q = Math.max(0, q - 1); render(); });
+    nextBtn.addEventListener("click", ()=> { q = Math.min(QUESTIONS.length - 1, q + 1); render(); });
+
+    resetBtn.addEventListener("click", ()=> {
+      answered = 0;
+      for(const v of votes){ v.a = 0; v.b = 0; }
+      q = 0;
+      render();
+    });
+
+    // 音声（簡易：Web Speech API / 対応環境のみ）
+    audioBtn.addEventListener("click", ()=> {
+      try{
+        const item = QUESTIONS[q];
+        const text = item.dialog ? item.dialog : (item.text + " " + item.a + " / " + item.b);
+        if(!("speechSynthesis" in window)) {
+          alert("このブラウザは音声読み上げに非対応です。");
+          return;
+        }
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = "en-US";
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+      }catch(e){
+        console.error(e);
+        alert("音声の再生でエラーが起きました。");
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
