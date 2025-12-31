@@ -6,6 +6,7 @@
   <title>みんなの回答（1台疑似）</title>
   <style>
     :root{
+      /* 明るい子供向け配色 */
       --bg1:#fff3b0;
       --bg2:#b9fbc0;
       --bg3:#a0c4ff;
@@ -60,6 +61,7 @@
     .card-inner{ padding:14px; }
 
     .qrow{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+
     .qtext{
       font-size:19px;
       font-weight:1000;
@@ -283,7 +285,7 @@
     <header>
       <div>
         <h1 class="title">みんなの回答（1台疑似）</h1>
-        <p class="sub">A/B どっちが自然？ 先生の画面イメージ</p>
+        <p class="sub">A/B 投票（先生画面イメージ）</p>
       </div>
       <div class="pill" id="remainPill">投票者あと <b id="remain">0</b> 人</div>
     </header>
@@ -298,7 +300,7 @@
               <span>｜</span>
               <span>回答済み <b id="answered">0</b></span>
               <span>/</span>
-              <span>想定 <b id="target">20</b></span>
+              <span>想定 <b id="target">4</b></span>
             </div>
           </div>
 
@@ -340,7 +342,7 @@
               <path d="M15.5 8.5a4.5 4.5 0 0 1 0 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               <path d="M18 6a8 8 0 0 1 0 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
-            音声（テスト）
+            音声（sheep）
           </button>
 
           <span class="note">※投票後に自動で次へは進みません（教室で会話する想定）。</span>
@@ -351,7 +353,7 @@
     <footer>ローカルで動く疑似UI（ネット不要）</footer>
   </div>
 
-  <!-- 結果オーバーレイ -->
+  <!-- 結果オーバーレイ（4人集まったときのみ表示） -->
   <div class="overlay" id="overlay" role="dialog" aria-modal="true">
     <div class="pop">
       <div class="popMain" id="popMain">結果！</div>
@@ -360,205 +362,211 @@
     </div>
   </div>
 
-<script>
-  // ====== 設定 ======
-  const TARGET_VOTERS = 4; // ★ 1問につき4人
+  <script>
+    // ====== 設定 ======
+    const TARGET_VOTERS = 4; // 1問につき4人
 
-  // 問題（前回の文脈に寄せた例）
-  const QUESTIONS = [
-    {
-      text: "問題①\nWhich do you like?",
-      a: "I like apple.",
-      b: "I like apples.",
-    },
-    {
-      text: "問題②\nWhich sounds natural?",
-      a: "I like apple.",
-      b: "I like apples.",
-    },
-    {
-      text: "問題③\nPick one!",
-      a: "A is better.",
-      b: "B is better.",
-    },
-    {
-      text: "問題④\nこのあと、なにをすると思う？",
-      a: "A：学校に行く",
-      b: "B：家に帰る",
-      dialog: "Mom: Hurry up!\nIt's time for school.\nBoy: OK!"
-    },
-  ];
+    // ====== 問題（ユーザー指定） ======
+    const QUESTIONS = [
+      {
+        text: "問題①\n“He is running.” どっちの意味？",
+        a: "彼は走っている",
+        b: "彼は走りたい",
+      },
+      {
+        text: "問題②\nどっちが自然な言い回しかな？",
+        a: "I like apple.",
+        b: "I like apples.",
+      },
+      {
+        text: "問題③\n今聞こえたのはどっち？",
+        a: "ship",
+        b: "sheep",
+        audio_word: "sheep" // この問題だけ音声ボタンで sheep を鳴らす
+      },
+      {
+        text: "問題④\nこのあと、なにをすると思う？",
+        // 道端で会った友達に「おはよう」と挨拶している英文を表示
+        dialog: "Friend: Good morning!\nYou: Good morning!",
+        a: "学校に行く",
+        b: "家に帰る",
+      },
+    ];
 
-  // ====== 状態 ======
-  let q = 0;
-  const votes = QUESTIONS.map(() => ({ a: 0, b: 0 }));
+    // ====== 状態 ======
+    let q = 0;
+    const votes = QUESTIONS.map(() => ({ a: 0, b: 0 }));
 
-  // ====== DOM ======
-  const qText = document.getElementById("qText");
-  const qIndex = document.getElementById("qIndex");
-  const qTotal = document.getElementById("qTotal");
-  const labelA = document.getElementById("labelA");
-  const labelB = document.getElementById("labelB");
-  const arenaA = document.getElementById("arenaA");
-  const arenaB = document.getElementById("arenaB");
-  const remain = document.getElementById("remain");
-  const answeredEl = document.getElementById("answered");
-  const targetEl = document.getElementById("target");
+    // ====== DOM ======
+    const qText = document.getElementById("qText");
+    const qIndex = document.getElementById("qIndex");
+    const qTotal = document.getElementById("qTotal");
+    const labelA = document.getElementById("labelA");
+    const labelB = document.getElementById("labelB");
+    const arenaA = document.getElementById("arenaA");
+    const arenaB = document.getElementById("arenaB");
+    const remain = document.getElementById("remain");
+    const answeredEl = document.getElementById("answered");
+    const targetEl = document.getElementById("target");
 
-  const btnA = document.getElementById("btnA");
-  const btnB = document.getElementById("btnB");
+    const btnA = document.getElementById("btnA");
+    const btnB = document.getElementById("btnB");
 
-  const prevBtn = document.getElementById("prevBtn");
-  const nextBtn = document.getElementById("nextBtn");
-  const resetBtn = document.getElementById("resetBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const resetBtn = document.getElementById("resetBtn");
 
-  const overlay = document.getElementById("overlay");
-  const popMain = document.getElementById("popMain");
-  const winnerBadge = document.getElementById("winnerBadge");
+    const overlay = document.getElementById("overlay");
+    const popMain = document.getElementById("popMain");
+    const winnerBadge = document.getElementById("winnerBadge");
 
-  const dialogWrap = document.getElementById("dialogWrap");
-  const audioBtn = document.getElementById("audioBtn");
+    const dialogWrap = document.getElementById("dialogWrap");
+    const audioBtn = document.getElementById("audioBtn");
 
-  qTotal.textContent = String(QUESTIONS.length);
-  targetEl.textContent = String(TARGET_VOTERS);
+    qTotal.textContent = String(QUESTIONS.length);
+    targetEl.textContent = String(TARGET_VOTERS);
 
-  // ====== ユーティリティ ======
-  function personSVG(){
-    return `
-      <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
-        <path d="M32 33c8.2 0 14.8-6.8 14.8-15.2S40.2 2.6 32 2.6 17.2 9.4 17.2 17.8 23.8 33 32 33Z" fill="currentColor" opacity=".18"/>
-        <path d="M12 60.5c3.1-14.3 12.4-22 20-22h0c7.6 0 16.9 7.7 20 22" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-      </svg>
-    `;
-  }
-
-  function renderPeople(container, count, cls){
-    container.innerHTML = "";
-    for(let i=0;i<count;i++){
-      const d = document.createElement("div");
-      d.className = `person ${cls}`;
-      d.innerHTML = personSVG();
-      container.appendChild(d);
-    }
-    if(count>0){
-      const last = container.lastElementChild;
-      const badge = document.createElement("div");
-      badge.className = "num";
-      badge.textContent = String(count);
-      last.appendChild(badge);
-    }
-  }
-
-  function countForCurrentQ(){
-    return votes[q].a + votes[q].b;
-  }
-
-  function updateHeader(){
-    const answered = countForCurrentQ();
-    answeredEl.textContent = String(answered);
-    const r = Math.max(0, TARGET_VOTERS - answered);
-    remain.textContent = String(r);
-  }
-
-  function showOverlay(winner){
-    const {a,b} = votes[q];
-    const total = a + b;
-    const aPct = total ? Math.round(a/total*100) : 0;
-    const bPct = total ? Math.round(b/total*100) : 0;
-
-    overlay.classList.add("show");
-    popMain.textContent = "結果！";
-
-    winnerBadge.className = "winnerBadge " + (winner === "a" ? "a" : "b");
-    winnerBadge.textContent =
-      (winner === "a" ? `A が多い！（${aPct}%）` : `B が多い！（${bPct}%）`);
-
-    const t = setTimeout(()=> overlay.classList.remove("show"), 3000);
-    const close = () => { clearTimeout(t); overlay.classList.remove("show"); overlay.removeEventListener("click", close); };
-    overlay.addEventListener("click", close);
-  }
-
-  function render(){
-    const item = QUESTIONS[q];
-    qText.textContent = item.text;
-    qIndex.textContent = String(q + 1);
-
-    labelA.textContent = item.a;
-    labelB.textContent = item.b;
-
-    renderPeople(arenaA, votes[q].a, "a");
-    renderPeople(arenaB, votes[q].b, "b");
-
-    if(item.dialog){
-      dialogWrap.style.display = "";
-      dialogWrap.textContent = item.dialog;
-    }else{
-      dialogWrap.style.display = "none";
-      dialogWrap.textContent = "";
+    // ====== ユーティリティ ======
+    function personSVG(){
+      return `
+        <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <path d="M32 33c8.2 0 14.8-6.8 14.8-15.2S40.2 2.6 32 2.6 17.2 9.4 17.2 17.8 23.8 33 32 33Z" fill="currentColor" opacity=".18"/>
+          <path d="M12 60.5c3.1-14.3 12.4-22 20-22h0c7.6 0 16.9 7.7 20 22" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+      `;
     }
 
-    prevBtn.disabled = (q === 0);
-    nextBtn.disabled = (q === QUESTIONS.length - 1);
-
-    // ★ 4人集まったらその問題は投票不可にする（表示だけ反映）
-    const answered = countForCurrentQ();
-    const locked = answered >= TARGET_VOTERS;
-    btnA.disabled = locked;
-    btnB.disabled = locked;
-
-    updateHeader();
-  }
-
-  // ====== 投票 ======
-  function vote(side){
-    const answered = countForCurrentQ();
-    if(answered >= TARGET_VOTERS) return;
-
-    votes[q][side] += 1;
-    render();
-
-    // ★ 毎回は出さない。4人目のときだけ結果を出す
-    const nowAnswered = countForCurrentQ();
-    if(nowAnswered === TARGET_VOTERS){
-      const {a,b} = votes[q];
-      const winner = (a === b) ? side : (a > b ? "a" : "b");
-      showOverlay(winner);
-    }
-  }
-
-  btnA.addEventListener("click", ()=> vote("a"));
-  btnB.addEventListener("click", ()=> vote("b"));
-
-  prevBtn.addEventListener("click", ()=> { q = Math.max(0, q - 1); render(); });
-  nextBtn.addEventListener("click", ()=> { q = Math.min(QUESTIONS.length - 1, q + 1); render(); });
-
-  resetBtn.addEventListener("click", ()=> {
-    for(const v of votes){ v.a = 0; v.b = 0; }
-    q = 0;
-    render();
-  });
-
-  // 音声（簡易：Web Speech API / 対応環境のみ）
-  audioBtn.addEventListener("click", ()=> {
-    try{
-      const item = QUESTIONS[q];
-      const text = item.dialog ? item.dialog : (item.text + " " + item.a + " / " + item.b);
-      if(!("speechSynthesis" in window)) {
-        alert("このブラウザは音声読み上げに非対応です。");
-        return;
+    function renderPeople(container, count, cls){
+      container.innerHTML = "";
+      for(let i=0;i<count;i++){
+        const d = document.createElement("div");
+        d.className = `person ${cls}`;
+        d.innerHTML = personSVG();
+        container.appendChild(d);
       }
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = "en-US";
-      speechSynthesis.cancel();
-      speechSynthesis.speak(u);
-    }catch(e){
-      console.error(e);
-      alert("音声の再生でエラーが起きました。");
+      if(count>0){
+        const last = container.lastElementChild;
+        const badge = document.createElement("div");
+        badge.className = "num";
+        badge.textContent = String(count);
+        last.appendChild(badge);
+      }
     }
-  });
 
-  render();
-</script>
+    function countForCurrentQ(){
+      return votes[q].a + votes[q].b;
+    }
 
+    function updateHeader(){
+      const answered = countForCurrentQ();
+      answeredEl.textContent = String(answered);
+      const r = Math.max(0, TARGET_VOTERS - answered);
+      remain.textContent = String(r);
+    }
+
+    function showOverlay(winner){
+      const {a,b} = votes[q];
+      const total = a + b;
+      const aPct = total ? Math.round(a/total*100) : 0;
+      const bPct = total ? Math.round(b/total*100) : 0;
+
+      overlay.classList.add("show");
+      popMain.textContent = "結果！";
+
+      winnerBadge.className = "winnerBadge " + (winner === "a" ? "a" : "b");
+      winnerBadge.textContent =
+        (winner === "a" ? `A が多い！（${aPct}%）` : `B が多い！（${bPct}%）`);
+
+      const t = setTimeout(()=> overlay.classList.remove("show"), 3000);
+      const close = () => { clearTimeout(t); overlay.classList.remove("show"); overlay.removeEventListener("click", close); };
+      overlay.addEventListener("click", close);
+    }
+
+    function render(){
+      const item = QUESTIONS[q];
+      qText.textContent = item.text;
+      qIndex.textContent = String(q + 1);
+
+      labelA.textContent = item.a;
+      labelB.textContent = item.b;
+
+      renderPeople(arenaA, votes[q].a, "a");
+      renderPeople(arenaB, votes[q].b, "b");
+
+      // 問題4などで英文表示
+      if(item.dialog){
+        dialogWrap.style.display = "";
+        dialogWrap.textContent = item.dialog;
+      }else{
+        dialogWrap.style.display = "none";
+        dialogWrap.textContent = "";
+      }
+
+      // ★問題3だけ音声ボタン表示
+      audioBtn.style.display = item.audio_word ? "inline-flex" : "none";
+
+      prevBtn.disabled = (q === 0);
+      nextBtn.disabled = (q === QUESTIONS.length - 1);
+
+      // ★4人集まったらその問題は投票不可にする
+      const answered = countForCurrentQ();
+      const locked = answered >= TARGET_VOTERS;
+      btnA.disabled = locked;
+      btnB.disabled = locked;
+
+      updateHeader();
+    }
+
+    // ====== 投票 ======
+    function vote(side){
+      const answered = countForCurrentQ();
+      if(answered >= TARGET_VOTERS) return;
+
+      votes[q][side] += 1;
+      render();
+
+      // ★毎回は出さない。4人目のときだけ結果を出す
+      const nowAnswered = countForCurrentQ();
+      if(nowAnswered === TARGET_VOTERS){
+        const {a,b} = votes[q];
+        const winner = (a === b) ? side : (a > b ? "a" : "b");
+        showOverlay(winner);
+      }
+    }
+
+    btnA.addEventListener("click", ()=> vote("a"));
+    btnB.addEventListener("click", ()=> vote("b"));
+
+    prevBtn.addEventListener("click", ()=> { q = Math.max(0, q - 1); render(); });
+    nextBtn.addEventListener("click", ()=> { q = Math.min(QUESTIONS.length - 1, q + 1); render(); });
+
+    resetBtn.addEventListener("click", ()=> {
+      for(const v of votes){ v.a = 0; v.b = 0; }
+      q = 0;
+      render();
+    });
+
+    // 音声（問題3のみ / Web Speech API）
+    audioBtn.addEventListener("click", ()=> {
+      try{
+        const item = QUESTIONS[q];
+        if(!item.audio_word) return;
+
+        if(!("speechSynthesis" in window)) {
+          alert("このブラウザは音声読み上げに非対応です。");
+          return;
+        }
+        const u = new SpeechSynthesisUtterance(item.audio_word);
+        u.lang = "en-US";
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+      }catch(e){
+        console.error(e);
+        alert("音声の再生でエラーが起きました。");
+      }
+    });
+
+    render();
+  </script>
 </body>
 </html>
